@@ -3,9 +3,10 @@ from aiogram. filters import Command
 import asyncio
 import requests
 from datetime import datetime
+import os
 
-TOKEN = "1629878422:AAFPLp5YrAIvIg5OqRQMaPXL1jbGEmchv7Y"
-CHAT_ID = 748790158
+TOKEN =  os.getenv("BOT_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 sent_coins = set()
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
@@ -228,10 +229,6 @@ async def check_binance_listings():
 async def main():
 
     print("🚀 Smart AI Crypto Manager запущений")
-    await bot.send_message(
-        CHAT_ID,
-        "🟢 Бот успішно запущений"
-    )
 
     asyncio.create_task(check_binance_listings())
 
