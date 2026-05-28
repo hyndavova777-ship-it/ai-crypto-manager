@@ -5,10 +5,10 @@ import requests
 from datetime import datetime
 import os
 
-TOKEN =  os.getenv("BOT_TOKEN")
+BOT_TOKEN =  os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 sent_coins = set()
-bot = Bot(token=TOKEN)
+bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 @dp.message(Command("start"))
