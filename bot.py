@@ -157,7 +157,7 @@ async def check_binance_listings():
             response = requests.get(url)
             data = response.json()
 
-            symbols = data["symbols"]
+            symbols = data.get["symbols", []]
 
             for item in symbols:
 
