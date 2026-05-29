@@ -4,6 +4,7 @@ import asyncio
 import requests
 from datetime import datetime
 import os
+import traceback
 
 BOT_TOKEN =  os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
@@ -239,7 +240,7 @@ async def check_binance_listings():
         import traceback
 
         try:
-            
+
         except Exception as e:
              print("Помилка:", e)
              traceback.print_exc()
