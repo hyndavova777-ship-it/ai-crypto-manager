@@ -55,12 +55,15 @@ def get_trending_data():
         trending = {}
 
         for coin in data["coins"]:
-            if symbol in sent_coins:
-              continue
 
             item = coin["item"]
 
             symbol = item["symbol"].upper()
+
+            if symbol in sent_coins:
+              continue
+
+
 
             rank = item.get("market_cap_rank")
 
