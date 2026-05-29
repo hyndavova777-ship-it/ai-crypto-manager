@@ -49,7 +49,10 @@ def get_trending_data():
 
         url = "https://api.coingecko.com/api/v3/search/trending"
 
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
+        if response.status_code !=n 200:
+            return {}
+        
         data = response.json()
 
         trending = {}
@@ -233,8 +236,11 @@ async def check_binance_listings():
 
             first_run = False
 
+        import traceback
+
         except Exception as e:
-            print("Помилка:", e)
+             print("Помилка:", e)
+             traceback.print_exc()
 
         await asyncio.sleep(60)
 
