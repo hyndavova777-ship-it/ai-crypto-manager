@@ -141,6 +141,14 @@ def calculate_score(rank, volume, price_change):
 
     return final_score, strength
 
+def get_bybit_symbols():
+    url = "https://api.bybit.com/v5/market/instruments-info?category=spot"
+
+    response = requests.get(url, timeout=10)
+    data = response.json()
+
+    return data.get("result", {}).get("list", [])
+
 
 async def check_binance_listings():
 
@@ -159,6 +167,8 @@ async def check_binance_listings():
 
             symbols = data.get("symbols", [])
 
+            bybit_symbols = get_bybit_symbols()
+            print(f"Bybit pairs found: {len(bybit_symbols)}")
             for item in symbols:
 
                 symbol = item["symbol"]
