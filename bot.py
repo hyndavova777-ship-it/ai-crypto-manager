@@ -50,7 +50,7 @@ def get_trending_data():
         url = "https://api.coingecko.com/api/v3/search/trending"
 
         response = requests.get(url, timeout=10)
-        if response.status_code !=n 200:
+        if response.status_code != 200:
             return {}
         
         data = response.json()
