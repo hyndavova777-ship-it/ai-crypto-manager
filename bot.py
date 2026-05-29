@@ -237,10 +237,6 @@ async def check_binance_listings():
 
             first_run = False
 
-        import traceback
-
-        try:
-
         except Exception as e:
              print("Помилка:", e)
              traceback.print_exc()
