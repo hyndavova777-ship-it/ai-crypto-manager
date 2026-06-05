@@ -231,6 +231,18 @@ async def check_binance_listings():
                     price = coin["price"]
                     price_change = coin["price_change"]
 
+                    coin_info = get_coin_info(coin["id"])
+
+                    if coin_info:
+                        market_cap = coin_info["market_cap"]
+                        exchange_count = coin_info["exchange_count"]
+                        exchanges = ", ".join(coin_info["exchanges"][:5])
+                    else:
+                        market_cap = 0
+                        exchange_count = 0
+                        exchanges = "Unknown"
+
+
                     score, strength = calculate_score(
                         rank,
                         volume,
@@ -245,6 +257,9 @@ async def check_binance_listings():
                         f"📈 <b>Exchange:</b> Binance\n"
                         f"🔥 <b>Trending:</b> YES\n"
                         f"📊 <b>Market Cap Rank:</b> #{rank}\n"
+                        f"🏦 <b>Exchanges:</b> {exchange_count}\n"
+                        f"📈 <b>Top Exchanges:</b> {exchanges}\n"
+                        f"💎 <b>Market Cap:</b> ${market_cap:,.0f}\n"
                         f"💰 <b>Price:</b> ${price:,.6f}\n"
                         f"💸 <b>Volume:</b> ${volume:,.0f}\n"
                         f"📈 <b>24h Change:</b> {price_change:.2f}%\n"
