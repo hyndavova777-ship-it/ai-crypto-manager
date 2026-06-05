@@ -78,6 +78,7 @@ def get_trending_data():
             price_change = coin_data.get("price_change_percentage_24h", {}).get("usd")
 
             trending[symbol] = {
+                "id": item["id"],
                 "rank": rank,
                 "volume": volume,
                 "price": price,
@@ -88,6 +89,40 @@ def get_trending_data():
 
     except:
         return {}
+    
+def get_coin_info(coin_id):
+
+    try:
+        url = f"https://api.coingecko.com/api/v3/coins/{coin_id}"
+
+        response = requests.get(url, timeout=10)
+
+        if response.status_code != 200:
+            return None
+
+        data = response.json()
+
+        market_cap = data["market_data"]["market_cap"]["usd"]
+
+        tickers = data.get("tickers", [])
+
+        exchanges = []
+
+        for ticker in tickers:
+            exchange = ticker["market"]["name"]
+
+            if exchange not in exchanges:
+                exchanges.append(exchange)
+
+        return {
+            "market_cap": market_cap,
+            "exchange_count": len(exchanges),
+            "exchanges": exchanges[:10]
+        }
+
+    except Exception as e:
+        print("CoinGecko Error:", e)
+        return None
 
 
 # AI scoring
