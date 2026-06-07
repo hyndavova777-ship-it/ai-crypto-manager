@@ -129,53 +129,52 @@ def calculate_score(rank, volume, price_change):
     score = 0
 
     # Rank
-    if rank is not None:
+    try:
+        rank = int(rank)
+    except:
+        rank = 999999
 
-        if rank <= 20:
-            score += 4
-
-        elif rank <= 100:
-            score += 3
-
-        elif rank <= 300:
-            score += 2
+    if rank <= 20:
+        score += 4
+    elif rank <= 100:
+        score += 3
+    elif rank <= 300:
+        score += 2
 
     # Volume
-    if volume is not None:
+    try:
+        volume = float(volume)
+    except:
+        volume = 0
 
-        if volume > 100000000:
-            score += 4
-
-        elif volume > 10000000:
-            score += 3
-
-        elif volume > 1000000:
-            score += 2
+    if volume > 100000000:
+        score += 4
+    elif volume > 10000000:
+        score += 3
+    elif volume > 1000000:
+        score += 2
 
     # Price change
-    if price_change is not None:
+    try:
+        price_change = float(price_change)
+    except:
+        price_change = 0
 
-        if price_change > 30:
-            score += 4
-
-        elif price_change > 15:
-            score += 3
-
-        elif price_change > 5:
-            score += 2
+    if price_change > 30:
+        score += 4
+    elif price_change > 15:
+        score += 3
+    elif price_change > 5:
+        score += 2
 
     final_score = round(score / 1.2, 1)
 
-    # Signal strength
     if final_score >= 8:
         strength = "🔥 VERY STRONG"
-
     elif final_score >= 6:
         strength = "🚀 STRONG"
-
     elif final_score >= 4:
         strength = "📈 MEDIUM"
-
     else:
         strength = "⚠️ WEAK"
 
