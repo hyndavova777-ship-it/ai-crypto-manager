@@ -39,8 +39,6 @@ async def help_command(message: types.Message):
         "та надсилає AI alerts."
     )
 
-known_symbols = set()
-first_run = True
 
 
 # Отримати trending data
@@ -187,102 +185,80 @@ def calculate_score(rank, volume, price_change):
 
 async def check_binance_listings():
 
-    global first_run
-
     while True:
 
         try:
 
             trending_data = get_trending_data()
 
-            url = "https://api.binance.com/api/v3/exchangeInfo"
+            for symbol, coin in trending_data.items():
 
-            response = requests.get(url)
-            data = response.json()
-
-            symbols = data.get("symbols", [])
-
-            for item in symbols:
-
-                symbol = item["symbol"]
-
-                # Тільки USDT
-                if not symbol.endswith("USDT"):
+                if symbol in sent_coins:
                     continue
 
-                coin_name = symbol.replace("USDT", "")
+                rank = coin["rank"]
+                volume = coin["volume"]
+                price = coin["price"]
+                price_change = coin["price_change"]
 
-                # Тільки trending
-                if coin_name not in trending_data:
+                coin_info = get_coin_info(coin["id"])
+
+                if not coin_info:
                     continue
 
-                # Нова пара
-                if symbol not in known_symbols:
+                market_cap = coin_info["market_cap"]
+                exchange_count = coin_info["exchange_count"]
+                exchanges_list = coin_info["exchanges"]
 
-                    known_symbols.add(symbol)
+                exchanges = ", ".join(exchanges_list[:5])
 
-                    if first_run:
-                        continue
+                score, strength = calculate_score(
+                    rank,
+                    volume,
+                    price_change
+                )
 
-                    coin = trending_data[coin_name]
+                if market_cap < 100000000:
+                    score += 2
 
-                    rank = coin["rank"]
-                    volume = coin["volume"]
-                    price = coin["price"]
-                    price_change = coin["price_change"]
+                if exchange_count > 10:
+                    score += 1
 
-                    coin_info = get_coin_info(coin["id"])
+                score = min(score, 10)
 
-                    if coin_info:
-                        market_cap = coin_info["market_cap"]
-                        exchange_count = coin_info["exchange_count"]
-                        exchanges = ", ".join(coin_info["exchanges"][:5])
-                    else:
-                        market_cap = 0
-                        exchange_count = 0
-                        exchanges = "Unknown"
+                if score < 7:
+                    continue
 
+                current_time = datetime.now().strftime("%H:%M:%S")
 
-                    score, strength = calculate_score(
-                        rank,
-                        volume,
-                        price_change
-                    )
+                text = (
+                    f"🔥 <b>COINGECKO TRENDING ALERT</b>\n\n"
+                    f"🪙 <b>Coin:</b> {symbol}\n"
+                    f"📊 <b>Trending Rank:</b> #{rank}\n"
+                    f"💎 <b>Market Cap:</b> ${market_cap:,.0f}\n"
+                    f"💰 <b>Price:</b> ${price:,.6f}\n"
+                    f"💸 <b>Volume:</b> ${volume:,.0f}\n"
+                    f"📈 <b>24h Change:</b> {price_change:.2f}%\n"
+                    f"🏦 <b>Listed On:</b> {exchange_count} exchanges\n"
+                    f"📈 <b>Top Exchanges:</b> {exchanges}\n\n"
+                    f"🤖 <b>AI Score:</b> {score}/10\n"
+                    f"{strength}\n"
+                    f"⏰ <b>Time:</b> {current_time}"
+                )
 
-                    current_time = datetime.now().strftime("%H:%M:%S")
+                await bot.send_message(
+                    CHAT_ID,
+                    text,
+                    parse_mode="HTML"
+                )
 
-                    text = ( 
-                        f"🚨 <b>SMART AI ALERT</b>\n\n"
-                        f"🪙 <b>Coin:</b> {symbol}\n"
-                        f"📈 <b>Exchange:</b> Binance\n"
-                        f"🔥 <b>Trending:</b> YES\n"
-                        f"📊 <b>Market Cap Rank:</b> #{rank}\n"
-                        f"🏦 <b>Exchanges:</b> {exchange_count}\n"
-                        f"📈 <b>Top Exchanges:</b> {exchanges}\n"
-                        f"💎 <b>Market Cap:</b> ${market_cap:,.0f}\n"
-                        f"💰 <b>Price:</b> ${price:,.6f}\n"
-                        f"💸 <b>Volume:</b> ${volume:,.0f}\n"
-                        f"📈 <b>24h Change:</b> {price_change:.2f}%\n"
-                        f"🤖 <b>AI Score:</b> {score}/10\n"
-                        f"{strength}\n"
-                        f"⏰ <b>Time:</b> {current_time}\n\n"
-                        f"🚀 Strong market momentum detected"
-                    )
-
-                    await bot.send_message ( 
-                        CHAT_ID,
-                        text,
-                        parse_mode="HTML"
-                    )
-                    sent_coins.add(symbol)
-
-            first_run = False
+                sent_coins.add(symbol)
 
         except Exception as e:
-             print("Помилка:", e)
-             traceback.print_exc()
+            print("Помилка:", e)
+            traceback.print_exc()
 
-        await asyncio.sleep(60)
+        await asyncio.sleep(300)
 
 
 async def main():
