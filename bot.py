@@ -225,7 +225,12 @@ async def check_binance_listings():
 
                 score = min(score, 10)
 
-                if score < 7:
+                print(
+                    f"{symbol} | Rank={rank} | Volume={volume} | "
+                    f"MC={market_cap} | Exchanges={exchange_count} | Score={score}"
+                )
+
+                if score < 3:
                     continue
 
                 current_time = datetime.now().strftime("%H:%M:%S")
@@ -244,6 +249,8 @@ async def check_binance_listings():
                     f"{strength}\n"
                     f"⏰ <b>Time:</b> {current_time}"
                 )
+
+                print(f"SENDING ALERT: {symbol}")
 
                 await bot.send_message(
                     CHAT_ID,
