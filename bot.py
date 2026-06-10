@@ -187,10 +187,8 @@ async def check_binance_listings():
     while True:
 
         try:
-
-            trending_data = get_trending_data()
-
-            for symbol, coin in trending_data.items():
+           trending_data = get_trending_data()
+        for symbol, coin in trending_data.items():
 
                 if symbol in sent_coins:
                     continue
@@ -211,11 +209,23 @@ async def check_binance_listings():
 
                 exchanges = ", ".join(exchanges_list[:5])
 
-                score, strength = calculate_score(
-                    rank,
-                    volume,
-                    price_change
-                )
+        # Очищаємо дані для розрахунку score
+
+try:
+    clean_volume = float(str(volume).replace("$", "").replace(",", ""))
+except:
+    clean_volume = 0
+
+try:
+    clean_market_cap = float(str(market_cap).replace("$", "").replace(",", ""))
+except:
+    clean_market_cap = 0
+
+score, strength = calculate_score(
+    rank,
+    clean_volume,
+    price_change
+)
 
                 if market_cap < 100000000:
                     score += 2
@@ -241,7 +251,7 @@ async def check_binance_listings():
                     f"📊 <b>Trending Rank:</b> #{rank}\n"
                     f"💎 <b>Market Cap:</b> ${market_cap:,.0f}\n"
                     f"💰 <b>Price:</b> ${price:,.6f}\n"
-                    f"💸 <b>Volume:</b> ${float(volume):,.0f}\n"
+                    f"💸 <b>Volume:</b> {volume}\n"
                     f"📈 <b>24h Change:</b> {price_change:.2f}%\n"
                     f"🏦 <b>Listed On:</b> {exchange_count} exchanges\n"
                     f"📈 <b>Top Exchanges:</b> {exchanges}\n\n"
