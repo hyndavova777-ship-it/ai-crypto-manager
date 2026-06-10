@@ -143,7 +143,7 @@ def calculate_score(rank, volume, price_change):
 
     # Volume
     try:
-        volume = float(volume)
+        volume = float(str(volume).replace("$", "").replace(",", ""))
     except:
         volume = 0
 
@@ -156,7 +156,7 @@ def calculate_score(rank, volume, price_change):
 
     # Price change
     try:
-        price_change = float(price_change)
+        price_change = float(str(price_change).replace("$", "").replace(",", ""))
     except:
         price_change = 0
 
