@@ -249,7 +249,7 @@ score, strength = calculate_score(
                     f"🔥 <b>COINGECKO TRENDING ALERT</b>\n\n"
                     f"🪙 <b>Coin:</b> {symbol}\n"
                     f"📊 <b>Trending Rank:</b> #{rank}\n"
-                    f"💎 <b>Market Cap:</b> ${market_cap:,.0f}\n"
+                    f"💎 <b>Market Cap:</b> {market_cap}\n"
                     f"💰 <b>Price:</b> ${price:,.6f}\n"
                     f"💸 <b>Volume:</b> {volume}\n"
                     f"📈 <b>24h Change:</b> {price_change:.2f}%\n"
