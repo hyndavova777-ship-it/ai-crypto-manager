@@ -184,11 +184,11 @@ def calculate_score(rank, volume, price_change):
 
 async def check_binance_listings():
 
-    while True:
-
+    while True:  
         try:
-           trending_data = get_trending_data()
-        for symbol, coin in trending_data.items():
+            trending_data = get_trending_data()
+
+            for symbol, coin in trending_data.items():
 
                 if symbol in sent_coins:
                     continue
@@ -209,25 +209,29 @@ async def check_binance_listings():
 
                 exchanges = ", ".join(exchanges_list[:5])
 
-        # Очищаємо дані для розрахунку score
+                # Очищаємо дані для score
 
-try:
-    clean_volume = float(str(volume).replace("$", "").replace(",", ""))
-except:
-    clean_volume = 0
+                try:
+                    clean_volume = float(
+                        str(volume).replace("$", "").replace(",", "")
+                    )
+                except:
+                    clean_volume = 0
 
-try:
-    clean_market_cap = float(str(market_cap).replace("$", "").replace(",", ""))
-except:
-    clean_market_cap = 0
+                try:
+                    clean_market_cap = float(
+                        str(market_cap).replace("$", "").replace(",", "")
+                    )
+                except:
+                    clean_market_cap = 0
 
-score, strength = calculate_score(
-    rank,
-    clean_volume,
-    price_change
-)
+                score, strength = calculate_score(
+                    rank,
+                    clean_volume,
+                    price_change
+                )
 
-                if market_cap < 100000000:
+                if clean_market_cap < 100000000:
                     score += 2
 
                 if exchange_count > 10:
@@ -275,7 +279,6 @@ score, strength = calculate_score(
             traceback.print_exc()
 
         await asyncio.sleep(300)
-
 
 async def main():
 
