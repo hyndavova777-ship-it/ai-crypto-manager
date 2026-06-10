@@ -241,7 +241,7 @@ async def check_binance_listings():
                     f"📊 <b>Trending Rank:</b> #{rank}\n"
                     f"💎 <b>Market Cap:</b> ${market_cap:,.0f}\n"
                     f"💰 <b>Price:</b> ${price:,.6f}\n"
-                    f"💸 <b>Volume:</b> ${volume:,.0f}\n"
+                    f"💸 <b>Volume:</b> ${float(volume):,.0f}\n"
                     f"📈 <b>24h Change:</b> {price_change:.2f}%\n"
                     f"🏦 <b>Listed On:</b> {exchange_count} exchanges\n"
                     f"📈 <b>Top Exchanges:</b> {exchanges}\n\n"
