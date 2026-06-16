@@ -244,7 +244,7 @@ async def check_binance_listings():
                     f"MC={market_cap} | Exchanges={exchange_count} | Score={score}"
                 )
 
-                if score < 3:
+                if score < 7:
                     continue
 
                 current_time = datetime.now().strftime("%H:%M:%S")
