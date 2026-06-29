@@ -190,6 +190,8 @@ async def check_binance_listings():
         try:
             trending_data = get_trending_data()
 
+            global previous_volumes
+
             for symbol, coin in trending_data.items():
 
                 if symbol in sent_coins:
@@ -219,25 +221,21 @@ async def check_binance_listings():
                     )
                 except:
                     clean_volume = 0
-                   
+
+                previous_volume = previous_volumes.get(symbol, 0)
+                if previous_volume > 0:
+                    volume_spike = ((clean_volume - previous_volume) / previous_volume) * 100
+                else:
+                    volume_spike = 0
+
+                previous_volumes[symbol] = clean_volume
+
                 try:
                     clean_market_cap = float(
                         str(market_cap).replace("$", "").replace(",", "")
                     )
                 except:
                     clean_market_cap = 0
-                
-                volume_spike = 0
-
-                if symbol in previous_volumes:
-                    old_volume = previous_volumes[symbol]
-
-                    if old_volume > 0:
-                        volume_spike = (
-                            (clean_volume - old_volume) / old_volume
-                        ) * 100
-
-                    previous_volumes[symbol] = clean_volume
 
 
                 score, strength = calculate_score(
@@ -266,7 +264,26 @@ async def check_binance_listings():
                     f"MC={market_cap} | Exchanges={exchange_count} | Score={score}"
                 )
 
-                if score < 7:
+                # ---------- ФІЛЬТРИ РАННЬОГО ТРЕНДУ ----------
+
+                if rank > 100:
+                    continue
+
+                if clean_market_cap < 50000000:
+                    continue
+
+                if exchange_count < 10:
+                    continue
+
+                # Якщо монета вже сильно виросла — пропускаємо
+                if price_change > 8:
+                    continue
+
+                # Якщо немає помітного збільшення об'єму — пропускаємо
+                if volume_spike < 30:
+                    continue
+
+                if score < 5:
                     continue
 
                 current_time = datetime.now().strftime("%H:%M:%S")
