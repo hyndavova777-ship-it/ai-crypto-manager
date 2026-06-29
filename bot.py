@@ -219,7 +219,15 @@ async def check_binance_listings():
                     )
                 except:
                     clean_volume = 0
-                    volume_spike = 0
+                   
+                try:
+                    clean_market_cap = float(
+                        str(market_cap).replace("$", "").replace(",", "")
+                    )
+                except:
+                    clean_market_cap = 0
+                
+                volume_spike = 0
 
                 if symbol in previous_volumes:
                     old_volume = previous_volumes[symbol]
@@ -231,12 +239,6 @@ async def check_binance_listings():
 
                     previous_volumes[symbol] = clean_volume
 
-                try:
-                    clean_market_cap = float(
-                        str(market_cap).replace("$", "").replace(",", "")
-                    )
-                except:
-                    clean_market_cap = 0
 
                 score, strength = calculate_score(
                     rank,
