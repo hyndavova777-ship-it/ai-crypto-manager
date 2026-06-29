@@ -9,6 +9,8 @@ import traceback
 BOT_TOKEN =  os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 sent_coins = set()
+
+previous_volumes = {}
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
@@ -217,6 +219,17 @@ async def check_binance_listings():
                     )
                 except:
                     clean_volume = 0
+                    volume_spike = 0
+
+                if symbol in previous_volumes:
+                    old_volume = previous_volumes[symbol]
+
+                    if old_volume > 0:
+                        volume_spike = (
+                            (clean_volume - old_volume) / old_volume
+                        ) * 100
+
+                    previous_volumes[symbol] = clean_volume
 
                 try:
                     clean_market_cap = float(
@@ -230,6 +243,13 @@ async def check_binance_listings():
                     clean_volume,
                     price_change
                 )
+
+                if volume_spike > 100:
+                    score += 4
+                elif volume_spike > 50:
+                    score += 3
+                elif volume_spike > 25:
+                    score += 2
 
                 if clean_market_cap < 100000000:
                     score += 2
@@ -256,6 +276,7 @@ async def check_binance_listings():
                     f"💎 <b>Market Cap:</b> {market_cap}\n"
                     f"💰 <b>Price:</b> ${price:,.6f}\n"
                     f"💸 <b>Volume:</b> {volume}\n"
+                    f"📊 <b>Volume Spike:</b> {volume_spike:.1f}%\n"
                     f"📈 <b>24h Change:</b> {price_change:.2f}%\n"
                     f"🏦 <b>Listed On:</b> {exchange_count} exchanges\n"
                     f"📈 <b>Top Exchanges:</b> {exchanges}\n\n"
