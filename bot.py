@@ -229,7 +229,6 @@ async def check_binance_listings():
                     volume_spike = 0
 
                 previous_volumes[symbol] = clean_volume
-
                 try:
                     clean_market_cap = float(
                         str(market_cap).replace("$", "").replace(",", "")
@@ -260,9 +259,12 @@ async def check_binance_listings():
                 score = min(score, 10)
 
                 print(
-                    f"{symbol} | Rank={rank} | Volume={volume} | "
-                    f"MC={market_cap} | Exchanges={exchange_count} | Score={score}"
-                )
+    f"{symbol} | "
+    f"Rank={rank} | "
+    f"Volume Spike={volume_spike:.1f}% | "
+    f"24h={price_change:.2f}% | "
+    f"Score={score}"
+)       
 
                 # ---------- ФІЛЬТРИ РАННЬОГО ТРЕНДУ ----------
 
@@ -276,14 +278,14 @@ async def check_binance_listings():
                     continue
 
                 # Якщо монета вже сильно виросла — пропускаємо
-                if price_change > 8:
+                if price_change > 15:
                     continue
 
                 # Якщо немає помітного збільшення об'єму — пропускаємо
                 if volume_spike < 30:
                     continue
 
-                if score < 5:
+                if score < 8:
                     continue
 
                 current_time = datetime.now().strftime("%H:%M:%S")
