@@ -282,8 +282,6 @@ async def check_binance_listings():
                     continue
 
                 # Якщо немає помітного збільшення об'єму — пропускаємо
-                if volume_spike < 30:
-                    continue
 
                 if score < 8:
                     continue
