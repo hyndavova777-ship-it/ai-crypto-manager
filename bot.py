@@ -8,7 +8,7 @@ import traceback
 
 BOT_TOKEN =  os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
-sent_coins = set()
+sent_coins = {}
 
 previous_volumes = {}
 bot = Bot(token=BOT_TOKEN)
@@ -63,11 +63,6 @@ def get_trending_data():
             item = coin["item"]
 
             symbol = item["symbol"].upper()
-
-            if symbol in sent_coins:
-              continue
-
-
 
             rank = item.get("market_cap_rank")
 
