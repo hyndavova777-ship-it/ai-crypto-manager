@@ -258,33 +258,32 @@ async def check_binance_listings():
 
                 score = min(score, 10)
 
-                print(
-    f"{symbol} | "
-    f"Rank={rank} | "
-    f"Volume Spike={volume_spike:.1f}% | "
-    f"24h={price_change:.2f}% | "
-    f"Score={score}"
-)       
+                print(f"Checking {symbol}")
 
                 # ---------- ФІЛЬТРИ РАННЬОГО ТРЕНДУ ----------
-
                 if rank > 100:
+                    print("Skip: rank")
                     continue
 
                 if clean_market_cap < 50000000:
+                    print("Skip: market cap")
                     continue
 
                 if exchange_count < 10:
+                    print("Skip: exchanges")
                     continue
 
                 # Якщо монета вже сильно виросла — пропускаємо
                 if price_change > 15:
+                    print("Skip: price")
                     continue
 
                 # Якщо немає помітного збільшення об'єму — пропускаємо
-
                 if score < 8:
+                    print("Skip: score")
                     continue
+
+                print(f"PASSED: {symbol}")
 
                 current_time = datetime.now().strftime("%H:%M:%S")
 
