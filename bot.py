@@ -306,13 +306,18 @@ async def check_binance_listings():
 
                 print(f"SENDING ALERT: {symbol}")
 
-                await bot.send_message(
-                    CHAT_ID,
-                    text,
-                    parse_mode="HTML"
-                )
+                try:
+                    msg = await bot.send_message(
+                        CHAT_ID,
+                        text,
+                        parse_mode="HTML"
+                    )
+                    print("MESSAGE SENT:", msg.message_id)
+                    sent_coins.add(symbol)
 
-                sent_coins.add(symbol)
+                except Exception as e:
+                    print("SEND ERROR:", e)
+                    traceback.print_exc()
 
         except Exception as e:
             print("Помилка:", e)
