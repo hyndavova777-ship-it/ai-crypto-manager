@@ -261,6 +261,14 @@ async def check_binance_listings():
                 print(f"Checking {symbol}")
 
                 # ---------- ФІЛЬТРИ РАННЬОГО ТРЕНДУ ----------
+                print(
+                    f"rank={rank}, "
+                    f"mc={clean_market_cap}, "
+                    f"ex={exchange_count}, "
+                    f"price={price_change}, "
+                    f"score={score}"
+                )
+
                 if rank > 100:
                     print("Skip: rank")
                     continue
@@ -273,12 +281,10 @@ async def check_binance_listings():
                     print("Skip: exchanges")
                     continue
 
-                # Якщо монета вже сильно виросла — пропускаємо
                 if price_change > 15:
                     print("Skip: price")
                     continue
 
-                # Якщо немає помітного збільшення об'єму — пропускаємо
                 if score < 8:
                     print("Skip: score")
                     continue
