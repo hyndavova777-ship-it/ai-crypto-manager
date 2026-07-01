@@ -6,7 +6,6 @@ from datetime import datetime
 import os
 import sys
 import traceback
-from services.telegram_sender import send_alert
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
@@ -310,7 +309,11 @@ async def check_binance_listings():
                 try:
                     print("Trying to send...")
 
-                    msg = await send_alert(bot, text)
+                    msg = await bot.send_message(
+                        CHAT_ID,
+                        text,
+                        parse_mode="HTML"
+                    )
 
                     print(f"MESSAGE SENT: {msg.message_id}")
 
