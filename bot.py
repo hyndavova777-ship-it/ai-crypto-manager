@@ -307,16 +307,22 @@ async def check_binance_listings():
                 print(f"SENDING ALERT: {symbol}")
 
                 try:
+                    print("Trying to send...")
+
                     msg = await bot.send_message(
-                        CHAT_ID,
-                        text,
+                        chat_id=CHAT_ID,
+                        text=text,
                         parse_mode="HTML"
                     )
-                    print("MESSAGE SENT:", msg.message_id)
+
+                    print(f"MESSAGE SENT: {msg.message_id}")
+
                     sent_coins.add(symbol)
 
                 except Exception as e:
-                    print("SEND ERROR:", e)
+                    print("SEND ERROR:")
+                    print(type(e).__name__)
+                    print(e)
                     traceback.print_exc()
 
         except Exception as e:
