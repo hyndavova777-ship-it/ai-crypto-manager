@@ -6,15 +6,10 @@ from datetime import datetime
 import os
 import sys
 import traceback
-
-# Ensure the root project directory is on sys.path so sibling modules can be imported.
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
 from services.telegram_sender import send_alert
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
-
 sent_coins = set()
 previous_volumes = {}
 bot = Bot(token=BOT_TOKEN)
