@@ -1,4 +1,3 @@
-from config import BOT_TOKEN, CHAT_ID
 from aiogram import Bot, Dispatcher, types
 from aiogram. filters import Command
 import asyncio
@@ -6,7 +5,11 @@ import requests
 from datetime import datetime
 import os
 import traceback
-ent_coins = {}
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
+
+sent_coins = set()
 previous_volumes = {}
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
