@@ -1,10 +1,16 @@
 from aiogram import Bot, Dispatcher, types
-from aiogram. filters import Command
+from aiogram.filters import Command
 import asyncio
 import requests
 from datetime import datetime
 import os
+import sys
 import traceback
+
+# Ensure the root project directory is on sys.path so sibling modules can be imported.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from services.telegram_sender import send_alert
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
@@ -309,11 +315,7 @@ async def check_binance_listings():
                 try:
                     print("Trying to send...")
 
-                    msg = await bot.send_message(
-                        chat_id=CHAT_ID,
-                        text=text,
-                        parse_mode="HTML"
-                    )
+                    msg = await send_alert(bot, text)
 
                     print(f"MESSAGE SENT: {msg.message_id}")
 
