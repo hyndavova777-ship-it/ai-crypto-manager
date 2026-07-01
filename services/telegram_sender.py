@@ -1,6 +1,6 @@
 from aiogram import Bot
 
-from ..config import CHAT_ID
+from config import CHAT_ID
 
 
 async def send_alert(bot: Bot, text: str):
