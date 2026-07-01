@@ -266,23 +266,23 @@ async def check_binance_listings():
 
                 if rank > 100:
                     print("Skip: rank")
-                    continue
+                    # continue
 
                 if clean_market_cap < 50000000:
                     print("Skip: market cap")
-                    continue
+                    # continue
 
                 if exchange_count < 10:
                     print("Skip: exchanges")
-                    continue
+                    # continue
 
                 if price_change > 15:
                     print("Skip: price")
-                    continue
+                    # continue
 
                 if score < 8:
                     print("Skip: score")
-                    continue
+                    # continue
 
                 print(f"PASSED: {symbol}")
 
