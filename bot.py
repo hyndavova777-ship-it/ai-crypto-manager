@@ -7,7 +7,10 @@ import os
 import sys
 import traceback
 from services.coingecko import get_trending_data
-from services.binance_data import get_open_interest
+from services.binance_data import (
+    get_open_interest,
+    get_funding_rate,
+)
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
@@ -207,6 +210,10 @@ async def check_binance_listings():
                 open_interest = get_open_interest(symbol)
 
                 print(f"Open Interest ({symbol}): {open_interest}")
+
+                funding_rate = get_funding_rate(symbol)
+
+                print(f"Funding Rate ({symbol}): {funding_rate}")
 
                 market_cap = coin_info["market_cap"]
                 exchange_count = coin_info["exchange_count"]
