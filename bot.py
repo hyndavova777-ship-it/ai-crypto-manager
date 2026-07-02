@@ -7,11 +7,8 @@ import os
 import sys
 import traceback
 from services.coingecko import get_trending_data
-from services.binance_data import (
-    get_open_interest,
-    get_funding_rate,
-)
-from services.scoring import calculate_score
+from services.binance_data import get_open_interest
+
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 sent_coins = set()
@@ -125,24 +122,227 @@ def get_coin_info(coin_id):
         return None
 
 
-# AI scoring (simple placeholder)
+# AI scoring
 def calculate_score(rank, volume, price_change):
+
+    score = 0
+
+    # Rank
     try:
-        score = 10 - (rank or 0) / 20 + (volume or 0) / 1e6 + (price_change or 0) / 10
-        return max(0, min(10, round(score, 1)))
-    except Exception:
-        return 0
+        rank = int(rank)
+    except:
+        rank = 999999
+
+    if rank <= 20:
+        score += 4
+    elif rank <= 100:
+        score += 3
+    elif rank <= 300:
+        score += 2
+
+    # Volume
+    try:
+        volume = float(str(volume).replace("$", "").replace(",", ""))
+    except:
+        volume = 0
+
+    if volume > 100000000:
+        score += 4
+    elif volume > 10000000:
+        score += 3
+    elif volume > 1000000:
+        score += 2
+
+    # Price change
+    try:
+        price_change = float(str(price_change).replace("$", "").replace(",", ""))
+    except:
+        price_change = 0
+
+    if price_change > 30:
+        score += 4
+    elif price_change > 15:
+        score += 3
+    elif price_change > 5:
+        score += 2
+
+    final_score = round(score / 1.2, 1)
+
+    if final_score >= 8:
+        strength = "🔥 VERY STRONG"
+    elif final_score >= 6:
+        strength = "🚀 STRONG"
+    elif final_score >= 4:
+        strength = "📈 MEDIUM"
+    else:
+        strength = "⚠️ WEAK"
+
+    return final_score, strength
+
 
 
 async def check_binance_listings():
-    # Placeholder loop to be implemented with real scanning logic
-    while True:
+
+    while True:  
+        try:
+            trending_data = get_trending_data()
+
+            global previous_volumes
+
+            for symbol, coin in trending_data.items():
+
+                if symbol in sent_coins:
+                    continue
+
+                rank = coin["rank"]
+                volume = coin["volume"]
+                price = coin["price"]
+                price_change = coin["price_change"]
+
+                coin_info = get_coin_info(coin["id"])
+
+                if not coin_info:
+                    continue
+
+                open_interest = get_open_interest(symbol)
+
+                print(f"Open Interest ({symbol}): {open_interest}")
+
+                market_cap = coin_info["market_cap"]
+                exchange_count = coin_info["exchange_count"]
+                exchanges_list = coin_info["exchanges"]
+
+                exchanges = ", ".join(exchanges_list[:5])
+
+                # Очищаємо дані для score
+
+                try:
+                    clean_volume = float(
+                        str(volume).replace("$", "").replace(",", "")
+                    )
+                except:
+                    clean_volume = 0
+
+                previous_volume = previous_volumes.get(symbol, 0)
+                if previous_volume > 0:
+                    volume_spike = ((clean_volume - previous_volume) / previous_volume) * 100
+                else:
+                    volume_spike = 0
+
+                previous_volumes[symbol] = clean_volume
+                try:
+                    clean_market_cap = float(
+                        str(market_cap).replace("$", "").replace(",", "")
+                    )
+                except:
+                    clean_market_cap = 0
+
+
+                score, strength = calculate_score(
+                    rank,
+                    clean_volume,
+                    price_change
+                )
+
+                if volume_spike > 100:
+                    score += 4
+                elif volume_spike > 50:
+                    score += 3
+                elif volume_spike > 25:
+                    score += 2
+
+                if clean_market_cap < 100000000:
+                    score += 2
+
+                if exchange_count > 10:
+                    score += 1
+
+                score = min(score, 10)
+
+                print(f"Checking {symbol}")
+
+                # ---------- ФІЛЬТРИ РАННЬОГО ТРЕНДУ ----------
+                print(
+                    f"rank={rank}, "
+                    f"mc={clean_market_cap}, "
+                    f"ex={exchange_count}, "
+                    f"price={price_change}, "
+                    f"score={score}"
+                )
+
+                if rank > 100:
+                    print("Skip: rank")
+                    # continue
+
+                if clean_market_cap < 50000000:
+                    print("Skip: market cap")
+                    # continue
+
+                if exchange_count < 10:
+                    print("Skip: exchanges")
+                    # continue
+
+                if price_change > 15:
+                    print("Skip: price")
+                    # continue
+
+                if score < 8:
+                    print("Skip: score")
+                    # continue
+
+                print(f"PASSED: {symbol}")
+
+                current_time = datetime.now().strftime("%H:%M:%S")
+
+                text = (
+                    f"🔥 <b>COINGECKO TRENDING ALERT</b>\n\n"
+                    f"🪙 <b>Coin:</b> {symbol}\n"
+                    f"📊 <b>Trending Rank:</b> #{rank}\n"
+                    f"💎 <b>Market Cap:</b> {market_cap}\n"
+                    f"💰 <b>Price:</b> ${price:,.6f}\n"
+                    f"💸 <b>Volume:</b> {volume}\n"
+                    f"📊 <b>Volume Spike:</b> {volume_spike:.1f}%\n"
+                    f"📈 <b>24h Change:</b> {price_change:.2f}%\n"
+                    f"🏦 <b>Listed On:</b> {exchange_count} exchanges\n"
+                    f"📈 <b>Top Exchanges:</b> {exchanges}\n\n"
+                    f"🤖 <b>AI Score:</b> {score}/10\n"
+                    f"{strength}\n"
+                    f"⏰ <b>Time:</b> {current_time}"
+                )
+
+                print(f"SENDING ALERT: {symbol}")
+
+                try:
+                    print("Trying to send...")
+
+                    msg = await bot.send_message(
+                        CHAT_ID,
+                        text,
+                        parse_mode="HTML"
+                    )
+
+                    print(f"MESSAGE SENT: {msg.message_id}")
+
+                    sent_coins.add(symbol)
+
+                except Exception as e:
+                    print("SEND ERROR:")
+                    print(type(e).__name__)
+                    print(e)
+                    traceback.print_exc()
+
+        except Exception as e:
+            print("Помилка:", e)
+            traceback.print_exc()
+
         await asyncio.sleep(300)
 
-
 async def main():
+
     print("🚀 Smart AI Crypto Manager запущений")
+
     asyncio.create_task(check_binance_listings())
+
     await dp.start_polling(bot)
 
 
