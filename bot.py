@@ -8,7 +8,7 @@ import sys
 import traceback
 from services.coingecko import get_trending_data
 from services.binance_data import get_open_interest
-from scoring import calculate_score
+from services.scoring import calculate_score
 from services.message_builder import build_alert
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -125,49 +125,13 @@ def get_coin_info(coin_id):
 
 
 # AI scoring
-async def check_binance_listings():
-    while True:
-        try:
-            trending = get_trending_data() or {}
-
-            for symbol, info in trending.items():
-                if symbol in sent_coins:
-                    continue
-
-                rank = info.get("rank") or 0
-                volume = info.get("volume") or 0
-                price = info.get("price") or 0
-                price_change = info.get("price_change") or 0
-                coin_id = info.get("id")
-                if not coin_id:
-                    continue
-
-                coin_info = get_coin_info(coin_id)
-                if not coin_info:
-                    continue
-
-                clean_market_cap = coin_info.get("market_cap") or 0
-                exchange_count = coin_info.get("exchange_count") or 0
-                top_exchanges = coin_info.get("exchanges", [])
-
-                previous_volume = previous_volumes.get(symbol, 0)
-                volume_spike = 0
-                if previous_volume > 0:
-                    try:
-                        volume_spike = volume / previous_volume
-                    except Exception:
-                        volume_spike = 0
-
-                previous_volumes[symbol] = volume
-
-                score = calculate_score(
-                    rank,
-                    clean_market_cap,
-                    exchange_count,
-                    volume_spike,
-                    price_change
-                )
-
+        score = calculate_score(
+    rank,
+    clean_market_cap,
+    exchange_count,
+    volume_spike,
+    price_change
+)
                 print(f"Checking {symbol}")
                 print(
                     f"rank={rank}, "
@@ -179,39 +143,41 @@ async def check_binance_listings():
 
                 if rank > 100:
                     print("Skip: rank")
-                    continue
+                    # continue
 
                 if clean_market_cap < 50000000:
                     print("Skip: market cap")
-                    continue
+                    # continue
 
                 if exchange_count < 10:
                     print("Skip: exchanges")
-                    continue
+                    # continue
 
                 if price_change > 15:
                     print("Skip: price")
-                    continue
+                    # continue
 
                 if score < 8:
                     print("Skip: score")
-                    continue
+                    # continue
 
                 print(f"PASSED: {symbol}")
 
+                current_time = datetime.now().strftime("%H:%M:%S")
+
                 text = build_alert(
-                    symbol=symbol,
-                    rank=rank,
-                    market_cap=clean_market_cap,
-                    price=price,
-                    volume=volume,
-                    volume_spike=volume_spike,
-                    price_change=price_change,
-                    exchange_count=exchange_count,
-                    exchanges=top_exchanges,
-                    score=score,
-                    strength=round(score)
-                )
+    symbol=symbol,
+    rank=rank,
+    market_cap=clean_market_cap,
+    price=price,
+    volume=volume,
+    volume_spike=volume_spike,
+    price_change=price_change,
+    exchange_count=exchange_count,
+    exchanges=top_exchanges,
+    score=score,
+    strength=strength,
+)
 
                 print(f"SENDING ALERT: {symbol}")
 
@@ -225,6 +191,7 @@ async def check_binance_listings():
                     )
 
                     print(f"MESSAGE SENT: {msg.message_id}")
+
                     sent_coins.add(symbol)
 
                 except Exception as e:
