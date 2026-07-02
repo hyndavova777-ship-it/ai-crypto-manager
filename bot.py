@@ -6,6 +6,7 @@ from datetime import datetime
 import os
 import sys
 import traceback
+from services.coingecko import get_trending_data
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
@@ -44,7 +45,7 @@ async def help_command(message: types.Message):
 
 
 # Отримати trending data
-def get_trending_data():
+def get_trending_data_old():
 
     try:
 
