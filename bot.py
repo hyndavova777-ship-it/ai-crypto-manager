@@ -47,7 +47,8 @@ async def check_binance_listings():
                     if not coin_info:
                         print(f"No CoinGecko data for {symbol}")
                         continue
-                 rank = coin_info["rank"]
+
+                    rank = coin_info["rank"]
                     clean_market_cap = coin_info["market_cap"]
                     price = coin_info["price"]
                     clean_volume = coin_info["volume"]
@@ -72,7 +73,7 @@ async def check_binance_listings():
                     funding_rate = get_funding_rate(symbol)
 
                     strength = "🟢 Strong"
-                score = calculate_score(
+                    score = calculate_score(
                         rank,
                         clean_market_cap,
                         exchange_count,
@@ -110,19 +111,19 @@ async def check_binance_listings():
                     sent_coins.add(symbol)
 
                     print(f"Alert sent: {symbol}")
-
+                
                 except Exception as e:
-                  print(f"Error processing {symbol}: {e}")
-                    traceback.print_exc()  
+                   print(f"Error processing {symbol}: {e}")
+                   traceback.print_exc()  
       except Exception as e:
-            print(f"Loop error: {e}")
-            traceback.print_exc()
+          print(f"Loop error: {e}")
+          traceback.print_exc()
 
           await asyncio.sleep(300) 
-        async def main():
-    await check_binance_listings()
+          async def main():
+            await check_binance_listings()
 
 
-if name == "__main__":
+if __name__ == "__main__":
     asyncio.run(main())
             
