@@ -39,3 +39,10 @@ def get_trending_data():
 
     except:
         return {}
+    
+def get_coin_info(symbol):
+    """
+    Тимчасова заглушка.
+    Пізніше повернемо повну реалізацію.
+    """
+    return None
