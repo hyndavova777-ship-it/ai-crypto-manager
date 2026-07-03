@@ -6,10 +6,9 @@ from aiogram import Bot
 from config import BOT_TOKEN
 
 from services.coingecko import (
-    get_trending_coins,
+    get_trending_data,
     get_coin_info,
 )
-
 from services.binance_data import (
     get_open_interest,
     get_funding_rate,
@@ -27,7 +26,7 @@ previous_volumes = {}
 async def check_binance_listings():
     while True:
         try:
-            trending_coins = get_trending_coins()
+            trending_coins = get_trending_data()
 
             if not trending_coins:
                 print("No trending coins found.")
