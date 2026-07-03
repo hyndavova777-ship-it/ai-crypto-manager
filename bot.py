@@ -26,7 +26,7 @@ sent_coins = set()
 previous_volumes = {}
 async def check_binance_listings():
     while True:
-      try:
+        try:
             trending_coins = get_trending_coins()
 
             if not trending_coins:
@@ -37,6 +37,7 @@ async def check_binance_listings():
             print(f"Found {len(trending_coins)} trending coins")
 
             for coin in trending_coins:
+                
                 try:
                     symbol = coin["symbol"].upper()
 
@@ -112,13 +113,13 @@ async def check_binance_listings():
 
                     print(f"Alert sent: {symbol}")
                 
-      except Exception as e:
-          print(f"Error processing {symbol}: {e}")
-          traceback.print_exc() 
+                except Exception as e:
+                    print(f"Error processing {symbol}: {e}")
+                    traceback.print_exc() 
 
-      except Exception as e:
-          print(f"Loop error: {e}")
-          traceback.print_exc()
+        except Exception as e:
+            print(f"Loop error: {e}")
+            traceback.print_exc()
 
     await asyncio.sleep(300)
        
