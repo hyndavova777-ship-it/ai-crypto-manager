@@ -39,7 +39,7 @@ async def check_binance_listings():
 
             for symbol, coin in trending_coins.items():
 
-        try:
+                try:
 
                     symbol = symbol.upper()
 
@@ -54,7 +54,7 @@ async def check_binance_listings():
                     exchange_count = coin.get("exchange_count", 0)
                     top_exchanges = coin.get("top_exchanges", [])
 
-        previous_volume = previous_volumes.get(symbol, 0)
+                    previous_volume = previous_volumes.get(symbol, 0)
 
                     if previous_volume > 0:
                         volume_spike = (
@@ -93,4 +93,42 @@ async def check_binance_listings():
                     elif score >= 8:
                         strength = "🟢 STRONG"
                     else:
-                        strength = "🟡 NORMAL"                  
+                        strength = "🟡 NORMAL"
+
+                    text = build_alert(
+                        symbol=symbol,
+                        rank=rank,
+                        market_cap=clean_market_cap,
+                        price=price,
+                        volume=clean_volume,
+                        volume_spike=volume_spike,
+                        price_change=price_change,
+                        exchange_count=exchange_count,
+                        exchanges=top_exchanges,
+                        score=score,
+                        strength=strength,
+                    )
+
+                    await send_alert(text)
+
+                    sent_coins.add(symbol)
+
+                    print(f"Alert sent: {symbol}")
+
+                except Exception as e:
+                    print(f"Error processing {symbol}: {e}")
+                    traceback.print_exc()   
+        except Exception as e:
+            print(f"Loop error: {e}")
+            traceback.print_exc()
+
+        await asyncio.sleep(300)
+
+
+async def main():
+    print("Bot started...")
+    await check_binance_listings()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())          
