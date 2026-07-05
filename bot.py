@@ -47,7 +47,14 @@ async def check_binance_listings():
 
                     rank = coin.get("rank", 9999)
                     price = coin.get("price", 0)
-                    clean_volume = coin.get("volume", 0)
+                    volume_raw = coin.get("volume", 0)
+
+                    if isinstance(volume_raw, str):
+                       clean_volume = float(
+                           volume_raw.replace("$", "").replace(",", "")
+                     )
+                    else:
+                       clean_volume = float(volume_raw or 0)
                     price_change = coin.get("price_change", 0)
 
                     clean_market_cap = coin.get("market_cap", 0)
