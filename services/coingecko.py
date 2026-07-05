@@ -63,7 +63,9 @@ def get_coin_info(coin_id):
         response = requests.get(url, params=params, timeout=15)
 
         if response.status_code != 200:
+            print(f"CoinGecko status {response.status_code} for {coin_id}")
             return None
+            
 
         data = response.json()
 
