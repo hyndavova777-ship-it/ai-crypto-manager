@@ -5,27 +5,29 @@ from aiogram import Bot
 
 from config import BOT_TOKEN
 
-from services.coingecko import (
-    get_trending_data,
-    get_coin_info,
-)
+from services.coingecko import get_trending_data
 from services.binance_data import (
     get_open_interest,
     get_funding_rate,
 )
-
 from services.scoring import calculate_score
-
 from services.message_builder import build_alert
-
 from services.telegram_sender import send_alert
+
+
 bot = Bot(token=BOT_TOKEN)
+
 sent_coins = set()
 
 previous_volumes = {}
+
+
 async def check_binance_listings():
+
     while True:
+
         try:
+
             trending_coins = get_trending_data()
 
             if not trending_coins:
@@ -35,21 +37,22 @@ async def check_binance_listings():
 
             print(f"Found {len(trending_coins)} trending coins")
 
-            for symbol, coin_info in trending_coins.items():
+            for symbol, coin in trending_coins.items():
 
                 try:
-                   symbol = symbol.upper()
 
-                   print(f"\nChecking {symbol}")
+                    symbol = symbol.upper()
 
-                   print(coin_info)
+                    print(f"\nChecking {symbol}")
 
-                   rank = coin_info["rank"]
-                   clean_market_cap = coin_info["market_cap"]
-                   price = coin_info["price"]
-                   clean_volume = coin_info["volume"]
-                   exchange_count = coin_info["exchange_count"]
-                   top_exchanges = coin_info["top_exchanges"]
+                    rank = coin.get("rank", 9999)
+                    price = coin.get("price", 0)
+                    clean_volume = coin.get("volume", 0)
+                    price_change = coin.get("price_change", 0)
+
+                    clean_market_cap = coin.get("market_cap", 0)
+                    exchange_count = coin.get("exchange_count", 0)
+                    top_exchanges = coin.get("top_exchanges", [])
 
                    previous_volume = previous_volumes.get(symbol, 0)
 
