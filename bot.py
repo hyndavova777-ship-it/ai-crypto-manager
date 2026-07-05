@@ -42,7 +42,7 @@ async def check_binance_listings():
 
                    print(f"\nChecking {symbol}")
 
-                   coin_info = get_coin_info(symbol)
+                   coin_info = get_coin_info(coin_info["id"])
 
                    rank = coin_info["rank"]
                    clean_market_cap = coin_info["market_cap"]
