@@ -44,6 +44,8 @@ async def check_binance_listings():
 
                    print(f"CoinGecko ID: {coin_info['id']}")
 
+                   print(coin_info)
+
                    coin_info = get_coin_info(coin_info["id"])
 
                    print(f"Coin info: {coin_info}")
