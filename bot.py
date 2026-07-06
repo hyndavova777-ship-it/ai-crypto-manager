@@ -91,7 +91,7 @@ async def check_binance_listings():
                         f"Volume Spike: {volume_spike:.2f}%"
                     )
 
-                    if score < 8:
+                    if score < 3:
                         print(f"Skipping {symbol} (score too low)")
                         continue
 
