@@ -43,11 +43,11 @@ def calculate_score(
     if 0 < price_change < 10:
         score += 1
         # Open Interest
-    if open_interest > 0:
+    if open_interest is not None and open_interest > 0:
         score += 1
 
     # Funding Rate
-    if abs(funding_rate) < 0.01:
+    if funding_rate is not None and abs(funding_rate) < 0.01:
         score += 1
 
     return min(score, 10)
