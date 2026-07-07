@@ -9,45 +9,59 @@ def calculate_score(
 ):
     score = 0
 
-    # Trending Rank
-    if rank <= 10:
-        score += 4
-    elif rank <= 30:
-        score += 3
-    elif rank <= 60:
-        score += 2
-    elif rank <= 100:
-        score += 1
+    # -------------------------
+    # Trending Rank (0-3)
+    # -------------------------
+    if rank is not None:
+        if rank <= 20:
+            score += 3
+        elif rank <= 50:
+            score += 2
+        elif rank <= 100:
+            score += 1
 
-    # Market Cap
-    if market_cap < 100_000_000:
-        score += 2
-    elif market_cap < 500_000_000:
-        score += 1
+    # -------------------------
+    # Market Cap (0-2)
+    # -------------------------
+    if market_cap is not None:
+        if market_cap >= 1_000_000_000:
+            score += 2
+        elif market_cap >= 100_000_000:
+            score += 1
 
-    # Біржі
-    if exchange_count > 20:
-        score += 2
-    elif exchange_count > 10:
-        score += 1
+    # -------------------------
+    # Volume Spike (0-2)
+    # -------------------------
+    if volume_spike is not None:
+        if volume_spike >= 50:
+            score += 2
+        elif volume_spike >= 20:
+            score += 1
 
-    # Volume Spike
-    if volume_spike > 100:
-        score += 3
-    elif volume_spike > 50:
-        score += 2
-    elif volume_spike > 25:
-        score += 1
+    # -------------------------
+    # Price Change 24h (0-1)
+    # -------------------------
+    if price_change is not None:
+        if abs(price_change) >= 5:
+            score += 1
 
-    # Price Change
-    if 0 < price_change < 10:
-        score += 1
-        # Open Interest
-    if open_interest is not None and open_interest > 0:
-        score += 1
+    # -------------------------
+    # Funding Rate (0-1)
+    # -------------------------
+    if funding_rate is not None:
+        if abs(funding_rate) < 0.01:
+            score += 1
+        elif abs(funding_rate) < 0.03:
+            score += 0.5
 
-    # Funding Rate
-    if funding_rate is not None and abs(funding_rate) < 0.01:
-        score += 1
+    # -------------------------
+    # Open Interest Bonus (0-1)
+    # -------------------------
+    if open_interest is not None:
+        try:
+            if float(open_interest) > 0:
+                score += 1
+        except (ValueError, TypeError):
+            pass
 
-    return min(score, 10)
+    return round(min(score, 10), 1)
