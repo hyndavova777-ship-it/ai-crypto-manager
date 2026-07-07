@@ -49,6 +49,15 @@ async def check_binance_listings():
                     price = coin.get("price", 0)
                     volume_raw = coin.get("volume", 0)
 
+                    open_interest = get_open_interest(symbol)
+                    funding_rate = get_funding_rate(symbol)
+
+                    if  open_interest is None:
+                        open_interest = 0
+
+                    if  funding_rate is None:
+                        funding_rate = 0.                             
+
                     if isinstance(volume_raw, str):
                        clean_volume = float(
                            volume_raw.replace("$", "").replace(",", "")
@@ -77,12 +86,14 @@ async def check_binance_listings():
                     funding_rate = get_funding_rate(symbol)
 
                     score = calculate_score(
-                        rank,
-                        clean_market_cap,
-                        exchange_count,
-                        volume_spike,
-                        price_change,
-                    )
+                      rank,
+                      clean_market_cap,
+                      exchange_count,
+                      volume_spike,
+                      price_change,
+                      open_interest,
+                      funding_rate,
+                )
 
                     print(
                         f"{symbol} | "

@@ -3,7 +3,9 @@ def calculate_score(
     market_cap,
     exchange_count,
     volume_spike,
-    price_change
+    price_change,
+    open_interest,
+    funding_rate,
 ):
     score = 0
 
@@ -39,6 +41,13 @@ def calculate_score(
 
     # Price Change
     if 0 < price_change < 10:
+        score += 1
+        # Open Interest
+    if open_interest > 0:
+        score += 1
+
+    # Funding Rate
+    if abs(funding_rate) < 0.01:
         score += 1
 
     return min(score, 10)
