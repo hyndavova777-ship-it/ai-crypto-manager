@@ -5,7 +5,10 @@ from aiogram import Bot
 
 from config import BOT_TOKEN
 
-from services.coingecko import get_trending_data
+from services.coingecko import (
+    get_trending_data,
+    get_coin_info,
+)
 from services.binance_data import (
     get_open_interest,
     get_funding_rate,
@@ -82,9 +85,6 @@ async def check_binance_listings():
 
                     previous_volumes[symbol] = clean_volume
 
-                    open_interest = get_open_interest(symbol)
-                    funding_rate = get_funding_rate(symbol)
-
                     score = calculate_score(
                       rank,
                       clean_market_cap,
@@ -102,9 +102,15 @@ async def check_binance_listings():
                         f"Volume Spike: {volume_spike:.2f}%"
                     )
 
-                    if score < 3:
+                    if score < 2:
                         print(f"Skipping {symbol} (score too low)")
                         continue
+
+                    coin_details = get_coin_info(coin["id"])
+
+                    if coin_details:
+                     exchange_count = coin_details["exchange_count"]
+                     top_exchanges = coin_details["top_exchanges"]
 
                     if score >= 9:
                         strength = "🟢 VERY STRONG"
