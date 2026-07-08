@@ -114,19 +114,20 @@ async def check_binance_listings():
                         strength = "🟡 NORMAL"
 
                     text = build_alert(
-                        symbol=symbol,
-                        rank=rank,
-                        market_cap=clean_market_cap,
-                        price=price,
-                        volume=clean_volume,
-                        volume_spike=volume_spike,
-                        price_change=price_change,
-                        exchange_count=exchange_count,
-                        exchanges=top_exchanges,
-                        score=score,
-                        strength=strength,
-                    )
-
+                      symbol=symbol,
+                      rank=rank,
+                      market_cap=clean_market_cap,
+                      price=price,
+                      volume=clean_volume,
+                      volume_spike=volume_spike,
+                      price_change=price_change,
+                      exchange_count=exchange_count,
+                      exchanges=top_exchanges,
+                      score=score,
+                      strength=strength,
+                      funding_rate=funding_rate,
+                      open_interest=open_interest,
+)
                     await send_alert(text)
 
                     sent_coins.add(symbol)

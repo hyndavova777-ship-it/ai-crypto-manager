@@ -12,7 +12,9 @@ def build_alert(
     exchanges,
     score,
     strength,
-):
+    funding_rate,
+    open_interest,
+    ):
     current_time = datetime.now().strftime("%H:%M:%S")
 
     text = (
@@ -24,6 +26,8 @@ def build_alert(
         f"💸 <b>Volume:</b> {volume}\n"
         f"📊 <b>Volume Spike:</b> {volume_spike:.1f}%\n"
         f"📈 <b>24h Change:</b> {price_change:.2f}%\n"
+        f"💹 <b>Funding Rate:</b> {funding_rate if funding_rate is not None else 'N/A'}\n"
+        f"📊 <b>Open Interest:</b> {open_interest if open_interest is not None else 'N/A'}\n"
         f"🏦 <b>Listed On:</b> {exchange_count} exchanges\n"
         f"📈 <b>Top Exchanges:</b> {exchanges}\n\n"
         f"🤖 <b>AI Score:</b> {score}/10\n"
