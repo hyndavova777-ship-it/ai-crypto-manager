@@ -16,6 +16,13 @@ from services.binance_data import (
 from services.scoring import calculate_score
 from services.message_builder import build_alert
 from services.telegram_sender import send_alert
+from services.cache import (
+    funding_cache,
+    oi_cache,
+    sent_cache,
+    CACHE_TIME,
+    SENT_CACHE_TIME,
+)
 
 
 bot = Bot(token=BOT_TOKEN)
@@ -112,6 +119,15 @@ async def check_binance_listings():
                     #  exchange_count = coin_details["exchange_count"]
                     #  top_exchanges = coin_details["top_exchanges"]
 
+                    now = time.time()
+
+                    if symbol in sent_cache:
+                         last_sent = sent_cache[symbol]
+
+                    if now - last_sent < SENT_CACHE_TIME:
+                        print(f"Skipping {symbol} (already sent recently)")
+                        continue
+
                     if score >= 9:
                         strength = "🟢 VERY STRONG"
                     elif score >= 8:
@@ -137,6 +153,8 @@ async def check_binance_listings():
                     await send_alert(text)
 
                     sent_coins.add(symbol)
+
+                    sent_cache[symbol] = now 
 
                     print(f"Alert sent: {symbol}")
 
