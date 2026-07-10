@@ -12,10 +12,11 @@ def get_open_interest(symbol):
     now = time.time()
 
     if symbol in oi_cache:
-       cached = oi_cache[symbol]
+        cached = oi_cache[symbol]
 
-    if now - cached["time"] < CACHE_TIME:
-        return cached["value"]
+        if now - cached["time"] < CACHE_TIME:
+            return cached["value"]
+
     try:
         url = f"https://fapi.binance.com/fapi/v1/openInterest?symbol={symbol}USDT"
 
@@ -29,13 +30,13 @@ def get_open_interest(symbol):
         value = float(data["openInterest"])
 
         oi_cache[symbol] = {
-          "value": value,
-          "time": now,
-}
+            "value": value,
+            "time": now,
+        }
 
         return value
 
-    except:
+    except Exception:
         return None
     
 def get_funding_rate(symbol):
@@ -43,10 +44,11 @@ def get_funding_rate(symbol):
     now = time.time()
 
     if symbol in funding_cache:
-      cached = funding_cache[symbol]
+        cached = funding_cache[symbol]
 
-    if now - cached["time"] < CACHE_TIME:
-        return cached["value"]
+        if now - cached["time"] < CACHE_TIME:
+            return cached["value"]
+
     try:
         url = f"https://fapi.binance.com/fapi/v1/premiumIndex?symbol={symbol}USDT"
 
@@ -60,11 +62,11 @@ def get_funding_rate(symbol):
         value = float(data["lastFundingRate"])
 
         funding_cache[symbol] = {
-        "value": value,
-        "time": now,
-}
+            "value": value,
+            "time": now,
+        }
 
         return value
 
-    except:
+    except Exception:
         return None
