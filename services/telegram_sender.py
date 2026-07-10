@@ -1,8 +1,6 @@
 from aiogram import Bot
-import os
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
+from config import BOT_TOKEN, CHAT_ID
 
 bot = Bot(token=BOT_TOKEN)
 

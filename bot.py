@@ -1,5 +1,6 @@
 import asyncio
 import traceback
+import time
 
 from aiogram import Bot
 
@@ -109,7 +110,7 @@ async def check_binance_listings():
                         f"Volume Spike: {volume_spike:.2f}%"
                     )
 
-                    if score < 2:
+                    if score < 7:
                         print(f"Skipping {symbol} (score too low)")
                         continue
 
