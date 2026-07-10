@@ -106,11 +106,11 @@ async def check_binance_listings():
                         print(f"Skipping {symbol} (score too low)")
                         continue
 
-                    coin_details = get_coin_info(coin["id"])
+                    # coin_details = get_coin_info(coin["id"])
 
-                    if coin_details:
-                     exchange_count = coin_details["exchange_count"]
-                     top_exchanges = coin_details["top_exchanges"]
+                    # if coin_details:
+                    #  exchange_count = coin_details["exchange_count"]
+                    #  top_exchanges = coin_details["top_exchanges"]
 
                     if score >= 9:
                         strength = "🟢 VERY STRONG"
