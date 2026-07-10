@@ -123,11 +123,11 @@ async def check_binance_listings():
                     now = time.time()
 
                     if symbol in sent_cache:
-                         last_sent = sent_cache[symbol]
+                       last_sent = sent_cache[symbol]
 
-                    if now - last_sent < SENT_CACHE_TIME:
-                        print(f"Skipping {symbol} (already sent recently)")
-                        continue
+                       if now - last_sent < SENT_CACHE_TIME:
+                           print(f"Skipping {symbol} (already sent recently)")
+                           continue
 
                     if score >= 9:
                         strength = "🟢 VERY STRONG"
