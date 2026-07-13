@@ -18,20 +18,20 @@ def build_alert(
     current_time = datetime.now().strftime("%H:%M:%S")
 
     if funding_rate >= 0:
-       funding_icon = "🟢"
+        funding_icon = "🟢"
     else:
-       funding_icon = "🔴"
+        funding_icon = "🔴"
 
-       if open_interest is None:
-           oi_text = "N/A"
-       elif open_interest >= 1_000_000_000:
-           oi_text = f"{open_interest / 1_000_000_000:.2f}B"
-       elif open_interest >= 1_000_000:
-           oi_text = f"{open_interest / 1_000_000:.2f}M"
-       elif open_interest >= 1_000:
-           oi_text = f"{open_interest / 1_000:.2f}K"
-       else:
-           oi_text = f"{open_interest:.2f}"
+    if open_interest is None:
+        oi_text = "N/A"
+    elif open_interest >= 1_000_000_000:
+        oi_text = f"{open_interest / 1_000_000_000:.2f}B"
+    elif open_interest >= 1_000_000:
+        oi_text = f"{open_interest / 1_000_000:.2f}M"
+    elif open_interest >= 1_000:
+        oi_text = f"{open_interest / 1_000:.2f}K"
+    else:
+        oi_text = f"{open_interest:.2f}"
 
     text = (
         f"🔥 <b>COINGECKO TRENDING ALERT</b>\n\n"
