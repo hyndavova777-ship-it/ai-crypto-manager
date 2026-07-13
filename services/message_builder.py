@@ -43,7 +43,7 @@ def build_alert(
         f"📊 <b>Volume Spike:</b> {volume_spike:.1f}%\n"
         f"📈 <b>24h Change:</b> {price_change:.2f}%\n"
         f"{funding_icon} <b>Funding Rate:</b> {funding_rate * 100:.4f}%\n"
-        f"📊 <b>Open Interest:</b> {open_interest if open_interest is not None else 'N/A'}\n"
+        f"📊 <b>Open Interest:</b> {oi_text}\n"
         f"🏦 <b>Binance Futures:</b> {'✅' if open_interest else '❌'}\n"
         f"🤖 <b>AI Score:</b> {score}/10\n"
         f"{strength}\n"
