@@ -78,26 +78,24 @@ async def check_binance_listings():
                     price_change = coin.get("price_change", 0)
 
                     clean_market_cap = coin.get("market_cap", 0)
+
+                    if clean_market_cap > 0:
+                        volume_ratio = clean_volume / clean_market_cap
+                    else:
+                        volume_ratio = 0
+
+                    # Skip very large coins
+                    if clean_market_cap > 5_000_000_000:
+                        print(f"Skipping {symbol} (market cap too high)")
+                        continue
                     exchange_count = coin.get("exchange_count", 0)
                     top_exchanges = coin.get("top_exchanges", [])
-
-                    previous_volume = previous_volumes.get(symbol, 0)
-
-                    if previous_volume > 0:
-                        volume_spike = (
-                            (clean_volume - previous_volume)
-                            / previous_volume
-                        ) * 100
-                    else:
-                        volume_spike = 0
-
-                    previous_volumes[symbol] = clean_volume
 
                     score = calculate_score(
                       rank,
                       clean_market_cap,
                       exchange_count,
-                      volume_spike,
+                      volume_ratio ,
                       price_change,
                       open_interest,
                       funding_rate,
@@ -107,8 +105,8 @@ async def check_binance_listings():
                         f"{symbol} | "
                         f"Rank: {rank} | "
                         f"Score: {score}/10 | "
-                        f"Volume Spike: {volume_spike:.2f}%"
-                    )
+                        f"Volume Ratio: {volume_ratio:.2%}"
+    )
 
                     if score < 7:
                         print(f"Skipping {symbol} (score too low)")
@@ -142,7 +140,7 @@ async def check_binance_listings():
                       market_cap=clean_market_cap,
                       price=price,
                       volume=clean_volume,
-                      volume_spike=volume_spike,
+                      volume_ratio=volume_ratio,
                       price_change=price_change,
                       exchange_count=exchange_count,
                       exchanges=top_exchanges,
