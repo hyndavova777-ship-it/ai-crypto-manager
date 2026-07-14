@@ -2,7 +2,7 @@ def calculate_score(
     rank,
     market_cap,
     exchange_count,
-    volume_spike,
+    volume_ratio,
     price_change,
     open_interest,
     funding_rate,
@@ -30,14 +30,19 @@ def calculate_score(
             score += 1
 
     # -------------------------
-    # Volume Spike (0-2)
-    # -------------------------
-    if volume_spike is not None:
-        if volume_spike >= 50:
-            score += 2
-        elif volume_spike >= 20:
-            score += 1
+    # Volume / Market Cap ratio
+    if market_cap > 0:
+        volume_ratio = volume / market_cap
+    else:
+        volume_ratio = 0
 
+        # Volume quality
+    if volume_ratio >= 0.50:
+        score += 3
+    elif volume_ratio >= 0.30:
+        score += 2
+    elif volume_ratio >= 0.15:
+        score += 1
     # -------------------------
     # Price Change 24h (0-1)
     # -------------------------

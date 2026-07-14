@@ -6,7 +6,7 @@ def build_alert(
     market_cap,
     price,
     volume,
-    volume_spike,
+    volume_ratio,
     price_change,
     exchange_count,
     exchanges,
@@ -40,7 +40,7 @@ def build_alert(
         f"💎 <b>Market Cap:</b> {market_cap}\n"
         f"💰 <b>Price:</b> ${price:,.6f}\n"
         f"💸 <b>Volume:</b> {volume}\n"
-        f"📊 <b>Volume Spike:</b> {volume_spike:.1f}%\n"
+        f"📊 <b>Volume Ratio:</b> {volume_ratio:.2%}\n"
         f"📈 <b>24h Change:</b> {price_change:.2f}%\n"
         f"{funding_icon} <b>Funding Rate:</b> {funding_rate * 100:.4f}%\n"
         f"📊 <b>Open Interest:</b> {oi_text}\n"

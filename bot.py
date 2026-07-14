@@ -95,7 +95,7 @@ async def check_binance_listings():
                       rank,
                       clean_market_cap,
                       exchange_count,
-                      volume_ratio ,
+                      volume_ratio,
                       price_change,
                       open_interest,
                       funding_rate,
