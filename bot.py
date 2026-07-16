@@ -29,7 +29,7 @@ from services.cache import (
 bot = Bot(token=BOT_TOKEN)
 
 sent_coins = set()
-
+previous_ranks = {}
 previous_volumes = {}
 
 
@@ -59,6 +59,14 @@ async def check_binance_listings():
                     rank = coin.get("rank", 9999)
                     price = coin.get("price", 0)
                     volume_raw = coin.get("volume", 0)
+
+                    previous_rank = previous_ranks.get(symbol, rank)
+
+                    rank_change = previous_rank - rank
+
+                    old_rank = previous_rank
+
+                    previous_ranks[symbol] = rank
 
                     open_interest = get_open_interest(symbol)
                     funding_rate = get_funding_rate(symbol)
@@ -99,11 +107,13 @@ async def check_binance_listings():
                       price_change,
                       open_interest,
                       funding_rate,
+                      rank_change 
                 )
 
                     print(
                         f"{symbol} | "
                         f"Rank: {rank} | "
+                        f"Momentum: {rank_change} | "
                         f"Score: {score}/10 | "
                         f"Volume Ratio: {volume_ratio:.2%}"
     )
@@ -148,7 +158,9 @@ async def check_binance_listings():
                       strength=strength,
                       funding_rate=funding_rate,
                       open_interest=open_interest,
-)
+                      old_rank=old_rank,
+                      current_rank=rank,
+     )
                     await send_alert(text)
 
                     sent_coins.add(symbol)
@@ -164,7 +176,7 @@ async def check_binance_listings():
             print(f"Loop error: {e}")
             traceback.print_exc()
 
-        await asyncio.sleep(300)
+        await asyncio.sleep(900)
 
 
 async def main():

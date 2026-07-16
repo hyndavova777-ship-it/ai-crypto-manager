@@ -6,6 +6,7 @@ def calculate_score(
     price_change,
     open_interest,
     funding_rate,
+    rank_change 
 ):
     score = 0
 
@@ -62,5 +63,15 @@ def calculate_score(
                 score += 1
         except (ValueError, TypeError):
             pass
+
+    # -------------------------
+    # Rank Momentum (0–3)
+    # -------------------------
+    if rank_change >= 50:
+        score += 3
+    elif rank_change >= 20:
+        score += 2
+    elif rank_change >= 10:
+        score += 1
 
     return round(min(score, 10), 1)

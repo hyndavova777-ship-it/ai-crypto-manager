@@ -14,6 +14,8 @@ def build_alert(
     strength,
     funding_rate,
     open_interest,
+    old_rank,
+    current_rank,
     ):
     current_time = datetime.now().strftime("%H:%M:%S")
 
@@ -33,6 +35,15 @@ def build_alert(
     else:
         oi_text = f"{open_interest:.2f}"
 
+    if current_rank < old_rank:
+        momentum_icon = "🟢"
+    elif current_rank > old_rank:
+        momentum_icon = "🔴"
+    else:
+        momentum_icon = "➖"
+
+    rank_change = old_rank - current_rank
+
     text = (
         f"🔥 <b>COINGECKO TRENDING ALERT</b>\n\n"
         f"🪙 <b>Coin:</b> {symbol}\n"
@@ -41,6 +52,7 @@ def build_alert(
         f"💰 <b>Price:</b> ${price:,.6f}\n"
         f"💸 <b>Volume:</b> {volume}\n"
         f"📊 <b>Volume Ratio:</b> {volume_ratio:.2%}\n"
+        f"📈 <b>Rank Momentum:</b> {momentum_icon} {old_rank} → {current_rank} ({rank_change:+})\n"
         f"📈 <b>24h Change:</b> {price_change:.2f}%\n"
         f"{funding_icon} <b>Funding Rate:</b> {funding_rate * 100:.4f}%\n"
         f"📊 <b>Open Interest:</b> {oi_text}\n"
