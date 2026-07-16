@@ -30,12 +30,6 @@ def calculate_score(
             score += 1
 
     # -------------------------
-    # Volume / Market Cap ratio
-    if market_cap > 0:
-        volume_ratio = volume / market_cap
-    else:
-        volume_ratio = 0
-
         # Volume quality
     if volume_ratio >= 0.50:
         score += 3
