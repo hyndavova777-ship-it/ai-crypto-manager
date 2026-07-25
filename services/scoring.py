@@ -59,6 +59,25 @@ def score_volume_ratio(volume_ratio):
         score += 1
 
     return score
+def score_open_interest_change(oi_change):
+    score = 0
+
+    if oi_change >= 20:
+        score += 3
+
+    elif oi_change >= 10:
+        score += 2
+
+    elif oi_change >= 5:
+        score += 1
+
+    elif oi_change <= -20:
+        score -= 2
+
+    elif oi_change <= -10:
+        score -= 1
+
+    return score
 
 def calculate_score(
     rank,
@@ -94,6 +113,8 @@ def calculate_score(
      score += score_volume_ratio(volume_ratio)
 
      score += score_exchange_count(exchange_count)
+
+     score += score_open_interest_change(oi_change)
     # -------------------------
     # Price Change 24h (0-1)
     # -------------------------
