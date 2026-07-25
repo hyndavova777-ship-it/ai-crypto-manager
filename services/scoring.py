@@ -1,10 +1,18 @@
 def score_market_cap(market_cap):
     score = 0
 
-    if market_cap <= 50_000_000:
+    if market_cap <= 20_000_000:
+        score += 5
+
+    elif market_cap <= 50_000_000:
+        score += 4
+
+    elif market_cap <= 100_000_000:
         score += 3
-    elif market_cap <= 150_000_000:
+
+    elif market_cap <= 250_000_000:
         score += 2
+
     elif market_cap <= 500_000_000:
         score += 1
 
