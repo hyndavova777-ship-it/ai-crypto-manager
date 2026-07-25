@@ -68,7 +68,8 @@ def calculate_score(
     price_change,
     open_interest,
     funding_rate,
-    rank_change 
+    rank_change,
+    oi_change,
 ):
     score = 0
 

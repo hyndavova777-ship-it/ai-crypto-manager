@@ -68,7 +68,7 @@ async def check_binance_listings():
 
                     previous_ranks[symbol] = rank
 
-                    open_interest = get_open_interest(symbol)
+                    open_interest, oi_change = get_open_interest(symbol)
                     funding_rate = get_funding_rate(symbol)
 
                     if  open_interest is None:
