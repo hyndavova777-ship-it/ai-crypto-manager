@@ -14,6 +14,7 @@ def build_alert(
     strength,
     funding_rate,
     open_interest,
+    oi_change,
     old_rank,
     current_rank,
     ):
@@ -44,6 +45,15 @@ def build_alert(
 
     rank_change = old_rank - current_rank
 
+    if oi_change >= 10:
+       oi_icon = "🟢"
+    elif oi_change >= 5:
+         oi_icon = "🟡"
+    elif oi_change <= -5:
+         oi_icon = "🔴"
+    else:
+         oi_icon = "⚪"
+
     text = (
         f"🔥 <b>COINGECKO TRENDING ALERT</b>\n\n"
         f"🪙 <b>Coin:</b> {symbol}\n"
@@ -56,6 +66,7 @@ def build_alert(
         f"📈 <b>24h Change:</b> {price_change:.2f}%\n"
         f"{funding_icon} <b>Funding Rate:</b> {funding_rate * 100:.4f}%\n"
         f"📊 <b>Open Interest:</b> {oi_text}\n"
+        f"{oi_icon} <b>OI Change:</b> {oi_change:.1f}%\n"
         f"🏦 <b>Binance Futures:</b> {'✅' if open_interest else '❌'}\n"
         f"🤖 <b>AI Score:</b> {score}/10\n"
         f"{strength}\n"

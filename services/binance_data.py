@@ -7,7 +7,6 @@ from services.cache import (
     CACHE_TIME,
 )
 
-
 def get_open_interest(symbol):
 
     now = time.time()
@@ -18,13 +17,13 @@ def get_open_interest(symbol):
         if now - cached["time"] < CACHE_TIME:
             return cached["value"]
 
-
+    try:
         url = f"https://fapi.binance.com/fapi/v1/openInterest?symbol={symbol}USDT"
 
         response = requests.get(url, timeout=10)
 
         if response.status_code != 200:
-            return None
+            return None, 0 
 
         data = response.json()
 
@@ -42,9 +41,13 @@ def get_open_interest(symbol):
         oi_cache[symbol] = {
             "value": (value, oi_change),
             "time": now,
-     }
+        }
 
         return value, oi_change
+
+    except Exception:
+        return None, 0
+
 def get_funding_rate(symbol):
 
     now = time.time()
@@ -75,4 +78,4 @@ def get_funding_rate(symbol):
         return value
 
     except Exception:
-        return None
+        return None 

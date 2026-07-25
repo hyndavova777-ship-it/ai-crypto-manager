@@ -107,7 +107,8 @@ async def check_binance_listings():
                       price_change,
                       open_interest,
                       funding_rate,
-                      rank_change 
+                      rank_change,
+                      oi_change,
                 )
 
                     print(
@@ -158,6 +159,7 @@ async def check_binance_listings():
                       strength=strength,
                       funding_rate=funding_rate,
                       open_interest=open_interest,
+                      oi_change=oi_change,
                       old_rank=old_rank,
                       current_rank=rank,
      )
