@@ -1,3 +1,57 @@
+def score_market_cap(market_cap):
+    score = 0
+
+    if market_cap <= 50_000_000:
+        score += 3
+    elif market_cap <= 150_000_000:
+        score += 2
+    elif market_cap <= 500_000_000:
+        score += 1
+
+    return score
+
+def score_rank_momentum(rank_change):
+    score = 0
+
+    if rank_change >= 50:
+        score += 3
+    elif rank_change >= 20:
+        score += 2
+    elif rank_change >= 10:
+        score += 1
+
+    return score
+
+def score_exchange_count(exchange_count):
+    score = 0
+
+    if exchange_count <= 5:
+        score += 2
+    elif exchange_count <= 10:
+        score += 1
+
+    return score
+
+def score_volume_ratio(volume_ratio):
+    score = 0
+
+    if volume_ratio >= 1.50:
+        score += 5
+
+    elif volume_ratio >= 1.00:
+        score += 4
+
+    elif volume_ratio >= 0.60:
+        score += 3
+
+    elif volume_ratio >= 0.30:
+        score += 2
+
+    elif volume_ratio >= 0.15:
+        score += 1
+
+    return score
+
 def calculate_score(
     rank,
     market_cap,
@@ -25,19 +79,12 @@ def calculate_score(
     # Market Cap (0-2)
     # -------------------------
     if market_cap is not None:
-        if market_cap >= 1_000_000_000:
-            score += 2
-        elif market_cap >= 100_000_000:
-            score += 1
 
-    # -------------------------
-        # Volume quality
-    if volume_ratio >= 0.50:
-        score += 3
-    elif volume_ratio >= 0.30:
-        score += 2
-    elif volume_ratio >= 0.15:
-        score += 1
+     score += score_market_cap(market_cap)
+
+     score += score_volume_ratio(volume_ratio)
+
+     score += score_exchange_count(exchange_count)
     # -------------------------
     # Price Change 24h (0-1)
     # -------------------------
@@ -67,11 +114,6 @@ def calculate_score(
     # -------------------------
     # Rank Momentum (0–3)
     # -------------------------
-    if rank_change >= 50:
-        score += 3
-    elif rank_change >= 20:
-        score += 2
-    elif rank_change >= 10:
-        score += 1
+    score += score_rank_momentum(rank_change)
 
     return round(min(score, 10), 1)
