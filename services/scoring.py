@@ -129,7 +129,6 @@ def calculate_score(
     volume_momentum,
     price_change,
     open_interest,
-    funding_rate,
     rank_change,
     oi_change,
 ):
@@ -166,15 +165,6 @@ def calculate_score(
     if price_change is not None:
         if abs(price_change) >= 5:
             score += 1
-
-    # -------------------------
-    # Funding Rate (0-1)
-    # -------------------------
-    if funding_rate is not None:
-        if abs(funding_rate) < 0.01:
-            score += 1
-        elif abs(funding_rate) < 0.03:
-            score += 0.5
 
     # -------------------------
     # Open Interest Bonus (0-1)

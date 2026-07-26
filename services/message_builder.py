@@ -13,18 +13,12 @@ def build_alert(
     exchanges,
     score,
     strength,
-    funding_rate,
     open_interest,
     oi_change,
     old_rank,
     current_rank,
     ):
     current_time = datetime.now().strftime("%H:%M:%S")
-
-    if funding_rate >= 0:
-        funding_icon = "🟢"
-    else:
-        funding_icon = "🔴"
 
     if open_interest is None:
         oi_text = "N/A"
@@ -75,7 +69,6 @@ def build_alert(
         f"📈 <b>Volume Momentum:</b> {volume_momentum_text}\n"
         f"📈 <b>Rank Momentum:</b> {momentum_icon} {old_rank} → {current_rank} ({rank_change:+})\n"
         f"📈 <b>24h Change:</b> {price_change:.2f}%\n"
-        f"{funding_icon} <b>Funding Rate:</b> {funding_rate * 100:.4f}%\n"
         f"📊 <b>Open Interest:</b> {oi_text}\n"
         f"{oi_icon} <b>OI Change:</b> {oi_change:.1f}%\n"
         f"🏦 <b>Binance Futures:</b> {'✅' if open_interest else '❌'}\n"

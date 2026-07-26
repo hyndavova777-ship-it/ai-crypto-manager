@@ -69,13 +69,9 @@ async def check_binance_listings():
                     previous_ranks[symbol] = rank
 
                     open_interest, oi_change = get_open_interest(symbol)
-                    funding_rate = get_funding_rate(symbol)
-
+                    
                     if  open_interest is None:
-                        open_interest = 0
-
-                    if  funding_rate is None:
-                        funding_rate = 0.                             
+                        open_interest = 0                          
 
                     if isinstance(volume_raw, str):
                        clean_volume = float(
@@ -112,7 +108,6 @@ async def check_binance_listings():
                       volume_momentum,
                       price_change,
                       open_interest,
-                      funding_rate,
                       rank_change,
                       oi_change,
                       
@@ -166,7 +161,6 @@ async def check_binance_listings():
                       exchanges=top_exchanges,
                       score=score,
                       strength=strength,
-                      funding_rate=funding_rate,
                       open_interest=open_interest,
                       oi_change=oi_change,
                       old_rank=old_rank,
