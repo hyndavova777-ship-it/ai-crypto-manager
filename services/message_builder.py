@@ -7,6 +7,7 @@ def build_alert(
     price,
     volume,
     volume_ratio,
+    volume_momentum,
     price_change,
     exchange_count,
     exchanges,
@@ -54,6 +55,15 @@ def build_alert(
     else:
          oi_icon = "⚪"
 
+    if volume_momentum > 0:
+        volume_momentum_text = f"🟢 +{volume_momentum}"
+
+    elif volume_momentum < 0:
+        volume_momentum_text = f"🔴 {volume_momentum}"
+
+    else:
+        volume_momentum_text = "🟡 0"
+
     text = (
         f"🔥 <b>COINGECKO TRENDING ALERT</b>\n\n"
         f"🪙 <b>Coin:</b> {symbol}\n"
@@ -62,6 +72,7 @@ def build_alert(
         f"💰 <b>Price:</b> ${price:,.6f}\n"
         f"💸 <b>Volume:</b> {volume}\n"
         f"📊 <b>Volume Ratio:</b> {volume_ratio:.2%}\n"
+        f"📈 <b>Volume Momentum:</b> {volume_momentum_text}\n"
         f"📈 <b>Rank Momentum:</b> {momentum_icon} {old_rank} → {current_rank} ({rank_change:+})\n"
         f"📈 <b>24h Change:</b> {price_change:.2f}%\n"
         f"{funding_icon} <b>Funding Rate:</b> {funding_rate * 100:.4f}%\n"

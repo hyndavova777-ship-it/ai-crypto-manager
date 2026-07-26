@@ -160,6 +160,7 @@ async def check_binance_listings():
                       price=price,
                       volume=clean_volume,
                       volume_ratio=volume_ratio,
+                      volume_momentum=volume_momentum,
                       price_change=price_change,
                       exchange_count=exchange_count,
                       exchanges=top_exchanges,
