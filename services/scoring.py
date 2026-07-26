@@ -1,3 +1,45 @@
+import time 
+
+def calculate_volume_momentum(symbol, volume_ratio):
+    from services.cache import volume_history
+
+    now = time.time()
+
+    if symbol not in volume_history:
+        volume_history[symbol] = []
+
+    volume_history[symbol].append({
+        "time": now,
+        "value": volume_ratio
+    })
+
+    # залишаємо тільки останні 5 записів
+    volume_history[symbol] = volume_history[symbol][-5:]
+
+    if len(volume_history[symbol]) < 2:
+        return 0
+
+    previous = volume_history[symbol][-2]["value"]
+
+    if previous == 0:
+        return 0
+
+    change = ((volume_ratio - previous) / previous) * 100
+
+    if change >= 50:
+        return 3
+
+    elif change >= 20:
+        return 2
+
+    elif change >= 10:
+        return 1
+
+    elif change <= -30:
+        return -1
+
+    return 0
+
 def score_market_cap(market_cap):
     score = 0
 
@@ -84,6 +126,7 @@ def calculate_score(
     market_cap,
     exchange_count,
     volume_ratio,
+    volume_momentum,
     price_change,
     open_interest,
     funding_rate,
@@ -115,6 +158,8 @@ def calculate_score(
      score += score_exchange_count(exchange_count)
 
      score += score_open_interest_change(oi_change)
+
+     score += volume_momentum
     # -------------------------
     # Price Change 24h (0-1)
     # -------------------------

@@ -14,7 +14,7 @@ from services.binance_data import (
     get_open_interest,
     get_funding_rate,
 )
-from services.scoring import calculate_score
+from services.scoring import calculate_score, calculate_volume_momentum
 from services.message_builder import build_alert
 from services.telegram_sender import send_alert
 from services.cache import (
@@ -99,25 +99,33 @@ async def check_binance_listings():
                     exchange_count = coin.get("exchange_count", 0)
                     top_exchanges = coin.get("top_exchanges", [])
 
-                    score = calculate_score(
+                    volume_momentum = calculate_volume_momentum(
+                        symbol,
+                        volume_ratio
+  )
+
+                    score = calculate_score( 
                       rank,
                       clean_market_cap,
                       exchange_count,
                       volume_ratio,
+                      volume_momentum,
                       price_change,
                       open_interest,
                       funding_rate,
                       rank_change,
                       oi_change,
-                )
+                      
+                 )
 
                     print(
                         f"{symbol} | "
                         f"Rank: {rank} | "
-                        f"Momentum: {rank_change} | "
-                        f"Score: {score}/10 | "
-                        f"Volume Ratio: {volume_ratio:.2%}"
-    )
+                        f"Rank Momentum: {rank_change} | "
+                        f"Volume Ratio: {volume_ratio:.2f}% | "
+                        f"Volume Momentum: {volume_momentum} | "
+                        f"Score: {score}/10"
+   )
 
                     if score < 7:
                         print(f"Skipping {symbol} (score too low)")
