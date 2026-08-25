@@ -55,6 +55,12 @@ def has_too_many_bearish_signals(
 
     return bearish_signals >= 3
 
+def has_bearish_price_momentum(price_5m, price_15m, price_1h): 
+    if price_5m < 0 and price_1h <= -2: 
+        return True
+    
+    return False
+
 
 async def check_binance_listings():
 
@@ -94,6 +100,14 @@ async def check_binance_listings():
                     open_interest, oi_change = get_open_interest(symbol)
 
                     price_5m, price_15m, price_1h = get_price_momentum(symbol)
+
+                    if has_bearish_price_momentum(
+                        price_5m,
+                        price_15m,
+                        price_1h,
+   ):
+                        print(f"Skipping {symbol} (bearish price momentum)")
+                        continue
                     
                     if  open_interest is None:
                         open_interest = 0                          
