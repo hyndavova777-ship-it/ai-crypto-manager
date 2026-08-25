@@ -79,3 +79,45 @@ def get_funding_rate(symbol):
 
     except Exception:
         return None 
+    
+def get_price_momentum(symbol):
+    try:
+        url = "https://api.binance.com/api/v3/klines"
+
+        def get_change(interval, limit):
+            params = {
+                "symbol": f"{symbol}USDT",
+                "interval": interval,
+                "limit": limit,
+            }
+
+            response = requests.get(
+                url,
+                params=params,
+                timeout=10
+            )
+
+            if response.status_code != 200:
+                return 0.0
+
+            data = response.json()
+
+            if len(data) < limit:
+                return 0.0
+
+            old_price = float(data[0][1])
+            current_price = float(data[-1][4])
+
+            if old_price <= 0:
+                return 0.0
+
+            return ((current_price - old_price) / old_price) * 100
+
+        price_5m = get_change("5m", 2)
+        price_15m = get_change("5m", 4)
+        price_1h = get_change("5m", 13)
+
+        return price_5m, price_15m, price_1h
+
+    except Exception:
+        return 0.0, 0.0, 0.0    

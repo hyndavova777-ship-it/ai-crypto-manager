@@ -13,6 +13,7 @@ from services.coingecko import (
 from services.binance_data import (
     get_open_interest,
     get_funding_rate,
+    get_price_momentum,
 )
 from services.scoring import calculate_score, calculate_volume_momentum
 from services.message_builder import build_alert
@@ -31,6 +32,28 @@ bot = Bot(token=BOT_TOKEN)
 sent_coins = set()
 previous_ranks = {}
 previous_volumes = {}
+
+def has_too_many_bearish_signals(
+    volume_momentum,
+    rank_change,
+    price_change,
+    oi_change,
+):
+    bearish_signals = 0
+
+    if volume_momentum < 0:
+        bearish_signals += 1
+
+    if rank_change < 0:
+        bearish_signals += 1
+
+    if price_change < 0:
+        bearish_signals += 1
+
+    if oi_change < 0:
+        bearish_signals += 1
+
+    return bearish_signals >= 3
 
 
 async def check_binance_listings():
@@ -69,6 +92,8 @@ async def check_binance_listings():
                     previous_ranks[symbol] = rank
 
                     open_interest, oi_change = get_open_interest(symbol)
+
+                    price_5m, price_15m, price_1h = get_price_momentum(symbol)
                     
                     if  open_interest is None:
                         open_interest = 0                          
@@ -100,6 +125,15 @@ async def check_binance_listings():
                         volume_ratio
   )
 
+                    if has_too_many_bearish_signals(
+                      volume_momentum,
+                      rank_change,
+                       price_change,
+                       oi_change,
+            ):
+                       print(f"Skipping {symbol} (too many bearish signals)")
+                       continue
+
                     score = calculate_score( 
                       rank,
                       clean_market_cap,
@@ -120,7 +154,10 @@ async def check_binance_listings():
                         f"Volume Ratio: {volume_ratio:.2f}% | "
                         f"Volume Momentum: {volume_momentum} | "
                         f"Score: {score}/10"
-   )
+                        f"Price Momentum: 5m {price_5m:+.2f}% | "
+                        f"15m {price_15m:+.2f}% | "
+                        f"1h {price_1h:+.2f}% | "
+                    )
 
                     if score < 7:
                         print(f"Skipping {symbol} (score too low)")
