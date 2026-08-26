@@ -16,7 +16,7 @@ from services.binance_data import (
     get_price_momentum,
     get_volume_acceleration,
 )
-from services.scoring import calculate_score, calculate_volume_momentum
+from services.scoring import calculate_score, calculate_volume_momentum, calculate_pre_move_score
 from services.message_builder import build_alert
 from services.telegram_sender import send_alert
 from services.cache import (
@@ -104,6 +104,14 @@ async def check_binance_listings():
 
                     volume_acceleration = get_volume_acceleration(symbol)
 
+                    pre_move_score = calculate_pre_move_score(
+                                     price_5m,
+                                     price_15m,
+                                     price_1h,
+                                     volume_acceleration,
+                                     oi_change,
+                    )
+
                     if has_bearish_price_momentum(
                         price_5m,
                         price_15m,
@@ -175,6 +183,7 @@ async def check_binance_listings():
                         f"15m {price_15m:+.2f}% | "
                         f"1h {price_1h:+.2f}% | "
                         f"Volume Acceleration: {volume_acceleration:+.2f}% | "
+                        f"Pre-Move Score: {pre_move_score}/8 | "
                     )
 
                     if score < 7:

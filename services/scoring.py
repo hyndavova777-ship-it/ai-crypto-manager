@@ -182,3 +182,50 @@ def calculate_score(
     score += score_rank_momentum(rank_change)
 
     return round(min(score, 10), 1)
+
+def calculate_pre_move_score(
+    price_5m, 
+    price_15m, 
+    price_1h, 
+    volume_acceleration, 
+    oi_change
+):
+    score = 0
+
+    # -------------------------
+    # Price Momentum (0-3)
+    # -------------------------
+    if price_5m >= 1:
+        score += 1
+
+    if price_15m >= 2:
+        score += 1
+
+    if price_1h >= 3:
+        score += 1
+
+    # -------------------------
+    # Volume Acceleration (0-3)
+    # -------------------------
+    if volume_acceleration >= 200:
+        score += 3
+    elif volume_acceleration >= 100:
+        score += 2
+    elif volume_acceleration >= 50:
+        score += 1
+
+    # -------------------------
+    # OI Change (0-2)
+    # -------------------------
+    if oi_change >= 10:
+        score += 2
+    elif oi_change >= 5:
+        score += 1
+
+    # -------------------------
+    # Bearish protection
+    # -------------------------
+    if price_5m < 0 and price_1h <= -2:
+        score -= 3
+
+    return max(0, min(score, 8))
