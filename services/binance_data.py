@@ -122,3 +122,49 @@ def get_price_momentum(symbol):
     except Exception as e:
         print(f"Price momentum error for {symbol}: {e}")
         return 0.0, 0.0, 0.0
+
+
+def get_volume_acceleration(symbol):
+    try:
+        url = "https://api.binance.com/api/v3/klines"
+        params = {
+            "symbol": f"{symbol}USDT",
+            "interval": "5m",
+            "limit": 7,
+        }
+
+        response = requests.get(
+            url,
+            params=params,
+            timeout=10
+        )
+
+        if response.status_code != 200:
+            return 0.0
+
+        data = response.json()
+
+        if len(data) < 7:
+            return 0.0
+
+        current_volume = float(data[-2][5])
+        previous_volumes = [
+            float(candle[5])
+            for candle in data[-7:-2]
+        ]
+
+        average_volume = sum(previous_volumes) / len(previous_volumes)
+
+        if average_volume <= 0:
+            return 0.0
+
+        acceleration = (
+            (current_volume - average_volume)
+            / average_volume
+        ) * 100
+
+        return acceleration
+
+    except Exception as e:
+        print(f"Volume acceleration error for {symbol}: {e}")
+        return 0.0

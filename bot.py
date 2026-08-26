@@ -14,6 +14,7 @@ from services.binance_data import (
     get_open_interest,
     get_funding_rate,
     get_price_momentum,
+    get_volume_acceleration,
 )
 from services.scoring import calculate_score, calculate_volume_momentum
 from services.message_builder import build_alert
@@ -101,6 +102,8 @@ async def check_binance_listings():
 
                     price_5m, price_15m, price_1h = get_price_momentum(symbol)
 
+                    volume_acceleration = get_volume_acceleration(symbol)
+
                     if has_bearish_price_momentum(
                         price_5m,
                         price_15m,
@@ -171,6 +174,7 @@ async def check_binance_listings():
                         f"Price Momentum: 5m {price_5m:+.2f}% | "
                         f"15m {price_15m:+.2f}% | "
                         f"1h {price_1h:+.2f}% | "
+                        f"Volume Acceleration: {volume_acceleration:+.2f}% | "
                     )
 
                     if score < 7:
