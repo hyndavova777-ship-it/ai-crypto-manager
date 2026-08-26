@@ -15,6 +15,7 @@ from services.binance_data import (
     get_funding_rate,
     get_price_momentum,
     get_volume_acceleration,
+    get_distance_to_local_high,
 )
 from services.scoring import calculate_score, calculate_volume_momentum, calculate_pre_move_score
 from services.message_builder import build_alert
@@ -104,6 +105,8 @@ async def check_binance_listings():
 
                     volume_acceleration = get_volume_acceleration(symbol)
 
+                    distance_to_high = get_distance_to_local_high(symbol)
+
                     pre_move_score = calculate_pre_move_score(
                                      price_5m,
                                      price_15m,
@@ -184,6 +187,7 @@ async def check_binance_listings():
                         f"1h {price_1h:+.2f}% | "
                         f"Volume Acceleration: {volume_acceleration:+.2f}% | "
                         f"Pre-Move Score: {pre_move_score}/8 | "
+                        f"Distance to High: {distance_to_high:.2f}% | "
                     )
 
                     if score < 7:

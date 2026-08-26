@@ -168,3 +168,50 @@ def get_volume_acceleration(symbol):
     except Exception as e:
         print(f"Volume acceleration error for {symbol}: {e}")
         return 0.0
+
+
+def get_distance_to_local_high(symbol):
+    try:
+        url = "https://api.binance.com/api/v3/klines"
+        params = {
+            "symbol": f"{symbol}USDT",
+            "interval": "5m",
+            "limit": 25,
+        }
+
+        response = requests.get(
+            url,
+            params=params,
+            timeout=10
+        )
+
+        if response.status_code != 200:
+            return 0.0
+
+        data = response.json()
+
+        if len(data) < 20:
+            return 0.0
+
+        completed_candles = data[:-1]
+
+        current_price = float(completed_candles[-1][4])
+
+        local_high = max(
+            float(candle[2])
+            for candle in completed_candles[-24:]
+        )
+
+        if local_high <= 0:
+            return 0.0
+
+        distance = (
+            (local_high - current_price)
+            / local_high
+        ) * 100
+
+        return distance
+
+    except Exception as e:
+        print(f"Distance to local high error for {symbol}: {e}")
+        return 0.0
