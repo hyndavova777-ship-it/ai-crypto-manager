@@ -108,11 +108,12 @@ async def check_binance_listings():
                     distance_to_high = get_distance_to_local_high(symbol)
 
                     pre_move_score = calculate_pre_move_score(
-                                     price_5m,
-                                     price_15m,
-                                     price_1h,
-                                     volume_acceleration,
-                                     oi_change,
+                        price_5m,
+                        price_15m,
+                        price_1h,
+                        volume_acceleration,
+                        oi_change,
+                        distance_to_high,
                     )
 
                     if has_bearish_price_momentum(
@@ -186,7 +187,7 @@ async def check_binance_listings():
                         f"15m {price_15m:+.2f}% | "
                         f"1h {price_1h:+.2f}% | "
                         f"Volume Acceleration: {volume_acceleration:+.2f}% | "
-                        f"Pre-Move Score: {pre_move_score}/8 | "
+                        f"Pre-Move Score: {pre_move_score}/10 | "
                         f"Distance to High: {distance_to_high:.2f}% | "
                     )
 

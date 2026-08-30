@@ -188,7 +188,8 @@ def calculate_pre_move_score(
     price_15m, 
     price_1h, 
     volume_acceleration, 
-    oi_change
+    oi_change, 
+    distance_to_high
 ):
     score = 0
 
@@ -223,9 +224,17 @@ def calculate_pre_move_score(
         score += 1
 
     # -------------------------
+    # Distance to Local High (0-2)
+    # -------------------------
+    if distance_to_high <= 2:
+        score += 2
+    elif distance_to_high <= 5:
+        score += 1
+
+    # -------------------------
     # Bearish protection
     # -------------------------
     if price_5m < 0 and price_1h <= -2:
         score -= 3
 
-    return max(0, min(score, 8))
+    return max(0, min(score, 10))
