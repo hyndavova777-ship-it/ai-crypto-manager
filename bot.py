@@ -195,6 +195,13 @@ async def check_binance_listings():
                         print(f"Skipping {symbol} (score too low)")
                         continue
 
+                    if pre_move_score < 5:
+                        print(
+                            f"Skipping {symbol} "
+                            f"(Pre-Move Score too low: {pre_move_score}/10)"
+                        )
+                        continue
+
                     # coin_details = get_coin_info(coin["id"])
 
                     # if coin_details:
