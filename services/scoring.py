@@ -243,4 +243,21 @@ def calculate_pre_move_score(
     if price_5m < 0 and price_1h <= -2:
         score -= 3
 
+    # -------------------------
+    # Confluence Bonus (0-2)
+    # Price + Volume + OI
+    # -------------------------
+    if (
+        price_5m > 0
+        and volume_acceleration >= 100
+        and oi_change >= 5
+    ):
+        score += 2
+    elif (
+        price_15m > 0
+        and volume_acceleration >= 100
+        and oi_change >= 5
+    ):
+        score += 1
+
     return max(0, min(score, 10))
