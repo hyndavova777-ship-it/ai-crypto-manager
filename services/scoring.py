@@ -220,12 +220,14 @@ def calculate_pre_move_score(
             score += 1
 
     # -------------------------
-    # OI Change (0-2)
+    # OI Change + Price Confirmation (0-2)
     # -------------------------
     if oi_change >= 10:
-        score += 2
+        if price_5m > 0 or price_15m > 0:
+            score += 2
     elif oi_change >= 5:
-        score += 1
+        if price_5m > 0 or price_15m > 0:
+            score += 1
 
     # -------------------------
     # Distance to Local High (0-2)
