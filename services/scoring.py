@@ -149,16 +149,12 @@ def calculate_score(
     # Market Cap (0-2)
     # -------------------------
     if market_cap is not None:
+        score += score_market_cap(market_cap)
+        score += score_volume_ratio(volume_ratio)
+        score += score_exchange_count(exchange_count)
+        score += score_open_interest_change(oi_change)
+        score += volume_momentum
 
-     score += score_market_cap(market_cap)
-
-     score += score_volume_ratio(volume_ratio)
-
-     score += score_exchange_count(exchange_count)
-
-     score += score_open_interest_change(oi_change)
-
-     score += volume_momentum
     # -------------------------
     # Price Change 24h (0-1)
     # -------------------------
@@ -183,13 +179,14 @@ def calculate_score(
 
     return round(min(score, 10), 1)
 
+
 def calculate_pre_move_score(
-    price_5m, 
-    price_15m, 
-    price_1h, 
-    volume_acceleration, 
-    oi_change, 
-    distance_to_high
+    price_5m,
+    price_15m,
+    price_1h,
+    volume_acceleration,
+    oi_change,
+    distance_to_high,
 ):
     score = 0
 
@@ -206,14 +203,21 @@ def calculate_pre_move_score(
         score += 1
 
     # -------------------------
-    # Volume Acceleration (0-3)
+    # Volume Acceleration + Price Confirmation (0-3)
     # -------------------------
     if volume_acceleration >= 200:
-        score += 3
+        if price_5m > 0:
+            score += 3
+        elif price_15m > 0:
+            score += 2
     elif volume_acceleration >= 100:
-        score += 2
+        if price_5m > 0:
+            score += 2
+        elif price_15m > 0:
+            score += 1
     elif volume_acceleration >= 50:
-        score += 1
+        if price_5m > 0:
+            score += 1
 
     # -------------------------
     # OI Change (0-2)
