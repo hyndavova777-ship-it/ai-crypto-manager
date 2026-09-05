@@ -1,6 +1,8 @@
 import asyncio
 import traceback
 import time
+import json
+import os
 
 from aiogram import Bot
 
@@ -34,6 +36,53 @@ bot = Bot(token=BOT_TOKEN)
 sent_coins = set()
 previous_ranks = {}
 previous_volumes = {}
+
+SIGNAL_HISTORY_FILE = "data/signal_history.json"
+
+
+def save_signal_history(
+    symbol,
+    signal_price,
+    pre_move_score,
+    price_5m,
+    price_15m,
+    price_1h,
+    volume_acceleration,
+    distance_to_high,
+    oi_change,
+):
+    try:
+        os.makedirs("data", exist_ok=True)
+
+        if os.path.exists(SIGNAL_HISTORY_FILE):
+            with open(SIGNAL_HISTORY_FILE, "r") as f:
+                history = json.load(f)
+        else:
+            history = []
+
+        signal = {
+            "symbol": symbol,
+            "time": time.time(),
+            "signal_price": signal_price,
+            "pre_move_score": pre_move_score,
+            "price_5m": price_5m,
+            "price_15m": price_15m,
+            "price_1h": price_1h,
+            "volume_acceleration": volume_acceleration,
+            "distance_to_high": distance_to_high,
+            "oi_change": oi_change,
+        }
+
+        history.append(signal)
+
+        with open(SIGNAL_HISTORY_FILE, "w") as f:
+            json.dump(history, f, indent=2)
+
+        print(f"Signal history saved: {symbol}")
+
+    except Exception as e:
+        print(f"Error saving signal history for {symbol}: {e}")
+
 
 def has_too_many_bearish_signals(
     volume_momentum,
@@ -191,10 +240,6 @@ async def check_binance_listings():
                         f"Distance to High: {distance_to_high:.2f}% | "
                     )
 
-                    if score < 7:
-                        print(f"Skipping {symbol} (score too low)")
-                        continue
-
                     if pre_move_score < 5:
                         print(
                             f"Skipping {symbol} "
@@ -241,7 +286,18 @@ async def check_binance_listings():
                       oi_change=oi_change,
                       old_rank=old_rank,
                       current_rank=rank,
-     )
+                    )
+                    save_signal_history(
+                        symbol=symbol,
+                        signal_price=price,
+                        pre_move_score=pre_move_score,
+                        price_5m=price_5m,
+                        price_15m=price_15m,
+                        price_1h=price_1h,
+                        volume_acceleration=volume_acceleration,
+                        distance_to_high=distance_to_high,
+                        oi_change=oi_change,
+                    )
                     await send_alert(text)
 
                     sent_coins.add(symbol)
