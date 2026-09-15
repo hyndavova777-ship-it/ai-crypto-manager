@@ -164,6 +164,8 @@ async def check_binance_listings():
                         oi_change,
                         distance_to_high,
                     )
+                    pre_move_breakdown = pre_move_score
+                    pre_move_score = pre_move_breakdown["score"]
 
                     if has_bearish_price_momentum(
                         price_5m,
@@ -281,11 +283,14 @@ async def check_binance_listings():
                       exchange_count=exchange_count,
                       exchanges=top_exchanges,
                       score=score,
+                      pre_move_score=pre_move_score,
+                      pre_move_breakdown=pre_move_breakdown,
                       strength=strength,
                       open_interest=open_interest,
                       oi_change=oi_change,
                       old_rank=old_rank,
                       current_rank=rank,
+                     
                     )
                     save_signal_history(
                         symbol=symbol,

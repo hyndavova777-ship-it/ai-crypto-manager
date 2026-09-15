@@ -12,6 +12,8 @@ def build_alert(
     exchange_count,
     exchanges,
     score,
+    pre_move_score,
+    pre_move_breakdown,
     strength,
     open_interest,
     oi_change,
@@ -69,10 +71,16 @@ def build_alert(
         f"📈 <b>Volume Momentum:</b> {volume_momentum_text}\n"
         f"📈 <b>Rank Momentum:</b> {momentum_icon} {old_rank} → {current_rank} ({rank_change:+})\n"
         f"📈 <b>24h Change:</b> {price_change:.2f}%\n"
+        f"🚀 <b>Pre-Move Score:</b> {pre_move_score}/10\n"
+        f"   ├ Price: {pre_move_breakdown['price_score']}/3\n"
+        f"   ├ Volume: {pre_move_breakdown['volume_score']}/3\n"
+        f"   ├ OI: {pre_move_breakdown['oi_score']}/2\n"
+        f"   ├ Distance: {pre_move_breakdown['distance_score']}/2\n"
+        f"   ├ Confluence: {pre_move_breakdown['confluence_score']}/2\n"
+        f"   └ Bearish Penalty: -{pre_move_breakdown['bearish_penalty']}\n"
         f"📊 <b>Open Interest:</b> {oi_text}\n"
         f"{oi_icon} <b>OI Change:</b> {oi_change:.1f}%\n"
         f"🏦 <b>Binance Futures:</b> {'✅' if open_interest else '❌'}\n"
-        f"🤖 <b>AI Score:</b> {score}/10\n"
         f"{strength}\n"
         f"⏰ <b>Time:</b> {current_time}"
     )
