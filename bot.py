@@ -3,6 +3,7 @@ import traceback
 import time
 import json
 import os
+from abc import ABC, abstractmethod
 
 from aiogram import Bot
 
@@ -18,6 +19,8 @@ from services.binance_data import (
     get_open_interest,
     get_funding_rate,
     get_price_momentum,
+    get_current_price,
+    get_price_range_after_signal, 
     get_volume_acceleration,
     get_distance_to_local_high,
 )
@@ -44,6 +47,7 @@ def save_signal_history(
     symbol,
     signal_price,
     pre_move_score,
+    pre_move_breakdown, 
     price_5m,
     price_15m,
     price_1h,
@@ -65,12 +69,39 @@ def save_signal_history(
             "time": time.time(),
             "signal_price": signal_price,
             "pre_move_score": pre_move_score,
+
+            "price_score": pre_move_breakdown["price_score"],
+            "volume_score": pre_move_breakdown["volume_score"],
+            "oi_score": pre_move_breakdown["oi_score"],
+            "distance_score": pre_move_breakdown["distance_score"],
+            "confluence_score": pre_move_breakdown["confluence_score"],
+            "bearish_penalty": pre_move_breakdown["bearish_penalty"],
+
             "price_5m": price_5m,
             "price_15m": price_15m,
             "price_1h": price_1h,
+
             "volume_acceleration": volume_acceleration,
             "distance_to_high": distance_to_high,
             "oi_change": oi_change,
+
+            # Outcome Tracker
+            "price_after_15m": None,
+            "change_after_15m": None,
+
+            "price_after_30m": None,
+            "change_after_30m": None,
+
+            "price_after_60m": None,
+            "change_after_60m": None,
+
+            "max_price_60m": None,
+            "max_change_60m": None,
+
+            "min_price_60m": None,
+            "min_change_60m": None,
+
+            "outcome_complete": False,
         }
 
         history.append(signal)
@@ -82,6 +113,86 @@ def save_signal_history(
 
     except Exception as e:
         print(f"Error saving signal history for {symbol}: {e}")
+
+def update_signal_outcomes(): 
+    try: 
+        with open(SIGNAL_HISTORY_FILE, "r") as f: 
+            history = json.load(f) 
+    except (FileNotFoundError, json.JSONDecodeError): 
+        return   
+    current_time = time.time()
+    history_changed = False
+
+    for signal in history:
+        if signal.get("outcome_complete", False):
+            continue
+
+        signal_time = signal.get("time")
+        signal_price = signal.get("signal_price")
+        symbol = signal.get("symbol")
+
+        if not signal_time or not signal_price or not symbol:
+            continue
+
+        elapsed_minutes = (current_time - signal_time) / 60
+
+        current_price = get_current_price(symbol)
+
+        if current_price is None:
+            continue
+
+        change_percent = (
+            (current_price - signal_price) / signal_price
+        ) * 100
+
+        if ( 
+            elapsed_minutes >= 15 
+            and signal.get("price_after_15m") is None
+        ):
+            signal["price_after_15m"] = current_price
+            signal["change_after_15m"] = change_percent
+            history_changed = True
+
+        if ( 
+            elapsed_minutes >= 30 
+            and signal.get("price_after_30m") is None
+        ):
+            signal["price_after_30m"] = current_price
+            signal["change_after_30m"] = change_percent
+            history_changed = True
+
+        if ( 
+            elapsed_minutes >= 60 
+            and signal.get("price_after_60m") is None
+        ): 
+            signal["price_after_60m"] = current_price 
+            signal["change_after_60m"] = change_percent
+
+            # Get real MAX/MIN during the first 60 minutes
+            max_price, min_price = get_price_range_after_signal(
+                symbol=symbol,
+                signal_time=signal_time,
+                end_time=signal_time + 3600,
+            )
+
+            if max_price is not None:
+                signal["max_price_60m"] = max_price
+                signal["max_change_60m"] = (
+                    (max_price - signal_price) / signal_price
+                ) * 100
+
+            if min_price is not None:
+                signal["min_price_60m"] = min_price
+                signal["min_change_60m"] = (
+                    (min_price - signal_price) / signal_price
+                ) * 100
+
+            signal["outcome_complete"] = True
+            history_changed = True
+
+    if history_changed:
+        with open(SIGNAL_HISTORY_FILE, "w") as f: 
+            json.dump(history, f, indent=4)
 
 def has_bearish_price_momentum(price_5m, price_15m, price_1h): 
     if price_5m < 0 and price_1h <= -2: 
@@ -183,6 +294,7 @@ async def check_binance_listings():
                         symbol=symbol,
                         signal_price=price,
                         pre_move_score=pre_move_score,
+                        pre_move_breakdown=pre_move_breakdown,
                         price_5m=price_5m,
                         price_15m=price_15m,
                         price_1h=price_1h,

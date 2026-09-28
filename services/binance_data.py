@@ -80,6 +80,65 @@ def get_funding_rate(symbol):
     except Exception:
         return None 
 
+def get_current_price(symbol): 
+    try: 
+        url = f"https://fapi.binance.com/fapi/v1/ticker/price?symbol={symbol}" 
+        response = requests.get(url, timeout=10) 
+        response.raise_for_status()
+
+        data = response.json()
+
+        return float(data["price"])
+
+    except Exception as e:
+        print(f"Current price error for {symbol}: {e}")
+        return None    
+
+def get_price_range_after_signal(symbol, signal_time, end_time=None):
+    try:
+        if end_time is None: 
+            end_time = time.time()
+
+        # Аналізуємо максимум перші 60 хвилин після сигналу
+        end_time = min(end_time, signal_time + 3600)
+
+        start_ms = int(signal_time * 1000)
+        end_ms = int(end_time * 1000)
+
+        url = "https://fapi.binance.com/fapi/v1/klines"
+
+        params = {
+            "symbol": symbol,
+            "interval": "1m",
+            "startTime": start_ms,
+            "endTime": end_ms,
+            "limit": 1000,
+        }
+
+        response = requests.get(
+            url,
+            params=params,
+            timeout=10,
+        )
+        response.raise_for_status()
+
+        candles = response.json()
+
+        if not candles:
+            return None, None
+
+        highs = [float(candle[2]) for candle in candles]
+        lows = [float(candle[3]) for candle in candles]
+
+        max_price = max(highs)
+        min_price = min(lows)
+
+        return max_price, min_price
+
+    except Exception as e:
+        print(f"Price range error for {symbol}: {e}")
+        return None, None
+
 def get_price_momentum(symbol):
     url = "https://api.binance.com/api/v3/klines"
 
