@@ -19,8 +19,8 @@ from services.binance_data import (
     get_open_interest,
     get_funding_rate,
     get_price_momentum,
-    get_current_price,
-    get_price_range_after_signal, 
+    get_price_range_after_signal,
+    get_historical_price, 
     get_volume_acceleration,
     get_distance_to_local_high,
 )
@@ -124,6 +124,10 @@ def update_signal_outcomes():
     history_changed = False
 
     for signal in history:
+
+        if "outcome_complete" not in signal:
+            continue
+
         if signal.get("outcome_complete", False):
             continue
 
@@ -134,61 +138,85 @@ def update_signal_outcomes():
         if not signal_time or not signal_price or not symbol:
             continue
 
-        elapsed_minutes = (current_time - signal_time) / 60
+        open_interest, _ = get_open_interest(symbol)
 
-        current_price = get_current_price(symbol)
-
-        if current_price is None:
+        if open_interest is None:
+            signal["outcome_complete"] = True
+            signal["outcome_error"] = "no_binance_futures"
+            history_changed = True
             continue
 
-        change_percent = (
-            (current_price - signal_price) / signal_price
-        ) * 100
+        elapsed_minutes = (current_time - signal_time) / 60
 
         if ( 
             elapsed_minutes >= 15 
-            and signal.get("price_after_15m") is None
-        ):
-            signal["price_after_15m"] = current_price
-            signal["change_after_15m"] = change_percent
-            history_changed = True
+            and signal.get("price_after_15m") is None 
+        ): 
+            price_15m_after = get_historical_price( 
+                symbol, 
+                signal_time + (15 * 60), 
+            )
+
+            if price_15m_after is not None:
+                signal["price_after_15m"] = price_15m_after
+                signal["change_after_15m"] = (
+                    (price_15m_after - signal_price) / signal_price
+                ) * 100
+
+                history_changed = True
 
         if ( 
             elapsed_minutes >= 30 
-            and signal.get("price_after_30m") is None
-        ):
-            signal["price_after_30m"] = current_price
-            signal["change_after_30m"] = change_percent
-            history_changed = True
+            and signal.get("price_after_30m") is None 
+        ): 
+            price_30m_after = get_historical_price( 
+                symbol, 
+                signal_time + (30 * 60), 
+            )
+
+            if price_30m_after is not None:
+                signal["price_after_30m"] = price_30m_after
+                signal["change_after_30m"] = (
+                    (price_30m_after - signal_price) / signal_price
+                ) * 100
+
+                history_changed = True
 
         if ( 
             elapsed_minutes >= 60 
-            and signal.get("price_after_60m") is None
-        ): 
-            signal["price_after_60m"] = current_price 
-            signal["change_after_60m"] = change_percent
-
-            # Get real MAX/MIN during the first 60 minutes
-            max_price, min_price = get_price_range_after_signal(
-                symbol=symbol,
-                signal_time=signal_time,
-                end_time=signal_time + 3600,
+            and signal.get("price_after_60m") is None 
+        ):
+            price_60m_after = get_historical_price( 
+                symbol, 
+                signal_time + (60 * 60), 
             )
 
-            if max_price is not None:
-                signal["max_price_60m"] = max_price
-                signal["max_change_60m"] = (
-                    (max_price - signal_price) / signal_price
+            if price_60m_after is not None:
+                signal["price_after_60m"] = price_60m_after
+                signal["change_after_60m"] = (
+                    (price_60m_after - signal_price) / signal_price
                 ) * 100
 
-            if min_price is not None:
-                signal["min_price_60m"] = min_price
-                signal["min_change_60m"] = (
-                    (min_price - signal_price) / signal_price
-                ) * 100
+                max_price, min_price = get_price_range_after_signal(
+                    symbol=symbol,
+                    signal_time=signal_time,
+                    end_time=signal_time + 3600,
+                )
 
-            signal["outcome_complete"] = True
-            history_changed = True
+                if max_price is not None:
+                    signal["max_price_60m"] = max_price
+                    signal["max_change_60m"] = (
+                        (max_price - signal_price) / signal_price
+                    ) * 100
+
+                if min_price is not None:
+                    signal["min_price_60m"] = min_price
+                    signal["min_change_60m"] = (
+                        (min_price - signal_price) / signal_price
+                    ) * 100
+
+                signal["outcome_complete"] = True
+                history_changed = True
 
     if history_changed:
         with open(SIGNAL_HISTORY_FILE, "w") as f: 
@@ -206,6 +234,9 @@ async def check_binance_listings():
     while True:
 
         try:
+
+            # Update outcomes of previously sent signals
+            update_signal_outcomes()
 
             trending_coins = get_trending_data()
 

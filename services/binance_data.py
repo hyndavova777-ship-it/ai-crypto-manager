@@ -80,19 +80,46 @@ def get_funding_rate(symbol):
     except Exception:
         return None 
 
-def get_current_price(symbol): 
-    try: 
-        url = f"https://fapi.binance.com/fapi/v1/ticker/price?symbol={symbol}" 
-        response = requests.get(url, timeout=10) 
+def get_historical_price(symbol, timestamp): 
+    try:
+        timestamp_ms = int(timestamp * 1000)
+
+        url = "https://fapi.binance.com/fapi/v1/klines"
+
+        params = {
+            "symbol": f"{symbol}USDT",
+            "interval": "1m",
+            "startTime": timestamp_ms,
+            "limit": 1,
+        }
+
+        response = requests.get(
+            url,
+            params=params,
+            timeout=20,
+        )
+
+        if response.status_code != 200:
+            print(
+                f"Binance historical error for {symbol}: "
+                f"{response.status_code} | {response.text}"
+            )
+
+            return None
         response.raise_for_status()
 
-        data = response.json()
+        candles = response.json()
 
-        return float(data["price"])
+        if not candles:
+            return None
+
+        # Close price of the first 1m candle
+        # at/after the requested timestamp
+        return float(candles[0][4])
 
     except Exception as e:
-        print(f"Current price error for {symbol}: {e}")
-        return None    
+        print(f"Historical price error for {symbol}: {e}")
+        return None   
 
 def get_price_range_after_signal(symbol, signal_time, end_time=None):
     try:
@@ -108,7 +135,7 @@ def get_price_range_after_signal(symbol, signal_time, end_time=None):
         url = "https://fapi.binance.com/fapi/v1/klines"
 
         params = {
-            "symbol": symbol,
+            "symbol": f"{symbol}USDT",
             "interval": "1m",
             "startTime": start_ms,
             "endTime": end_ms,
@@ -118,7 +145,7 @@ def get_price_range_after_signal(symbol, signal_time, end_time=None):
         response = requests.get(
             url,
             params=params,
-            timeout=10,
+            timeout=20,
         )
         response.raise_for_status()
 
