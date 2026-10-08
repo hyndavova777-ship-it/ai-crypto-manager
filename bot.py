@@ -17,6 +17,7 @@ from services.coingecko import (
 )
 from services.binance_data import (
     get_open_interest,
+    get_open_interest_changes,
     get_funding_rate,
     get_price_momentum,
     get_price_range_after_signal,
@@ -54,6 +55,9 @@ def save_signal_history(
     volume_acceleration,
     distance_to_high,
     oi_change,
+    oi_change_5m,
+    oi_change_15m,
+    oi_change_1h,
 ):
     try:
         os.makedirs("data", exist_ok=True)
@@ -84,6 +88,9 @@ def save_signal_history(
             "volume_acceleration": volume_acceleration,
             "distance_to_high": distance_to_high,
             "oi_change": oi_change,
+            "oi_change_5m": oi_change_5m,
+            "oi_change_15m": oi_change_15m,
+            "oi_change_1h": oi_change_1h,
 
             # Outcome Tracker
             "price_after_15m": None,
@@ -259,6 +266,10 @@ async def check_binance_listings():
 
                     _, oi_change = get_open_interest(symbol)
 
+                    oi_change_5m, oi_change_15m, oi_change_1h = (
+                        get_open_interest_changes(symbol)
+                    )
+
                     price_5m, price_15m, price_1h = get_price_momentum(symbol)
 
                     volume_acceleration = get_volume_acceleration(symbol)
@@ -332,6 +343,9 @@ async def check_binance_listings():
                         volume_acceleration=volume_acceleration,
                         distance_to_high=distance_to_high,
                         oi_change=oi_change,
+                        oi_change_5m=oi_change_5m,
+                        oi_change_15m=oi_change_15m,
+                        oi_change_1h=oi_change_1h,
                     )
                     await send_alert(text)
 

@@ -48,6 +48,80 @@ def get_open_interest(symbol):
     except Exception:
         return None, 0
 
+def get_open_interest_history(symbol, period="5m", limit=13): 
+    try: 
+        url = "https://fapi.binance.com/futures/data/openInterestHist"
+
+        params = {
+            "symbol": f"{symbol}USDT",
+            "period": period,
+            "limit": limit,
+        }
+
+        response = requests.get(
+            url,
+            params=params,
+            timeout=20,
+        )
+
+        if response.status_code != 200:
+            print(
+                f"Binance OI history error for {symbol}: "
+                f"{response.status_code} | {response.text}"
+            )
+            return None
+
+        data = response.json()
+
+        if not data:
+            return None
+
+        return data
+
+    except Exception as e:
+        print(f"OI history error for {symbol}: {e}")
+        return None
+
+def get_open_interest_changes(symbol): 
+    history = get_open_interest_history( 
+        symbol=symbol, 
+        period="5m", 
+        limit=13, 
+    )
+
+    if not history or len(history) < 13:
+        return None, None, None
+
+    try:
+        current_oi = float(history[-1]["sumOpenInterest"])
+
+        oi_5m_ago = float(history[-2]["sumOpenInterest"])
+        oi_15m_ago = float(history[-4]["sumOpenInterest"])
+        oi_1h_ago = float(history[-13]["sumOpenInterest"])
+
+        def calculate_change(old_value):
+            if old_value <= 0:
+                return None
+
+            return (
+                (current_oi - old_value)
+                / old_value
+            ) * 100
+
+        oi_change_5m = calculate_change(oi_5m_ago)
+        oi_change_15m = calculate_change(oi_15m_ago)
+        oi_change_1h = calculate_change(oi_1h_ago)
+
+        return (
+            oi_change_5m,
+            oi_change_15m,
+            oi_change_1h,
+        )
+
+    except (KeyError, TypeError, ValueError) as e:
+        print(f"OI calculation error for {symbol}: {e}")
+        return None, None, None
+
 def get_funding_rate(symbol):
 
     now = time.time()

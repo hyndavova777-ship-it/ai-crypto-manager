@@ -301,6 +301,73 @@ def analyze_quality_by_score(signals):
             f"({quality_hit_rate:.1f}%)"
         )
 
+def analyze_oi_timeframes(signals): 
+    print("\n===== OI TIMEFRAME ANALYSIS =====")
+
+    timeframes = [
+        "oi_change_5m",
+        "oi_change_15m",
+        "oi_change_1h",
+    ]
+
+    for timeframe in timeframes:
+        valid_signals = [
+            signal
+            for signal in signals
+            if signal.get(timeframe) is not None
+            and signal.get("max_change_60m") is not None
+            and signal.get("min_change_60m") is not None
+        ]
+
+        print(f"\n--- {timeframe.upper()} ---")
+
+        if not valid_signals:
+            print("No data available.")
+            continue
+
+        groups = {
+            "Negative OI": [],
+            "Flat OI (0% to 0.5%)": [],
+            "Positive OI (>0.5%)": [],
+        }
+
+        for signal in valid_signals:
+            oi = signal[timeframe]
+
+            if oi < 0:
+                groups["Negative OI"].append(signal)
+            elif oi <= 0.5:
+                groups["Flat OI (0% to 0.5%)"].append(signal)
+            else:
+                groups["Positive OI (>0.5%)"].append(signal)
+
+        for group_name, group in groups.items():
+            if not group:
+                continue
+
+            avg_max = sum(
+                s["max_change_60m"] for s in group
+            ) / len(group)
+
+            avg_min = sum(
+                s["min_change_60m"] for s in group
+            ) / len(group)
+
+            hits = sum(
+                1 for s in group
+                if s["max_change_60m"] >= 2
+            )
+
+            hit_rate = hits / len(group) * 100
+
+            print(
+                f"{group_name} | "
+                f"Signals: {len(group)} | "
+                f"Avg MAX: {avg_max:+.2f}% | "
+                f"Avg MIN: {avg_min:+.2f}% | "
+                f"+2% Hit Rate: {hit_rate:.1f}%"
+            )
+
 if __name__ == "__main__":
     signals = load_completed_signals()
 
@@ -315,4 +382,5 @@ if __name__ == "__main__":
     analyze_component(signals, "confluence_score")
     analyze_quality_hits(signals)
     analyze_quality_by_score(signals)
+    analyze_oi_timeframes(signals)
     show_extreme_signals(signals)
