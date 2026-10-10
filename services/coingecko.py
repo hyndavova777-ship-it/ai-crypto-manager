@@ -32,6 +32,38 @@ def get_trending_data():
         if not ids:
             return {}
 
+        # Додаємо монети з найбільшою капіталізацією
+        top_params = {
+            "vs_currency": "usd",
+            "order": "market_cap_desc",
+            "per_page": 100,
+            "page": 1,
+            "sparkline": "false",
+        }
+        top_response = requests.get(
+            "https://api.coingecko.com/api/v3/coins/markets",
+            params=top_params,
+            timeout=20,
+        )
+
+        if top_response.status_code == 200:
+            for coin in top_response.json():
+                if len(ids) >= 50:
+                    break
+
+                coin_id = coin["id"]
+
+                if coin_id in symbols:
+                    continue
+
+                ids.append(coin_id)
+                symbols[coin_id] = coin["symbol"].upper()
+        else:
+            print(
+                f"Top coins request failed: "
+                f"{top_response.status_code}"
+            )
+
         markets_url = "https://api.coingecko.com/api/v3/coins/markets"
 
         params = {

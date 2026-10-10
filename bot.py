@@ -254,6 +254,8 @@ async def check_binance_listings():
 
             print(f"Found {len(trending_coins)} trending coins")
 
+            checked_coins = 0
+
             for symbol, coin in trending_coins.items():
 
                 try:
@@ -261,6 +263,12 @@ async def check_binance_listings():
                     symbol = symbol.upper()
 
                     print(f"\nChecking {symbol}")
+
+                    checked_coins += 1
+
+                    print(
+                        f"Checking coin {checked_coins}/{len(trending_coins)}"
+                    )
 
                     price = coin.get("price", 0)
 
