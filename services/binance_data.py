@@ -375,3 +375,50 @@ def get_distance_to_local_high(symbol):
     except Exception as e:
         print(f"Distance to local high error for {symbol}: {e}")
         return 0.0
+
+def get_futures_prices(symbols):
+    """
+    Отримує актуальні ціни Binance USDT Futures.
+
+    symbols: ["BTC", "ETH", "SOL"]
+
+    Повертає:
+    {"BTC": 69000.0, "ETH": 3400.0}
+    """
+    if not symbols:
+        return {}
+
+    try:
+        url = "https://fapi.binance.com/fapi/v1/ticker/price"
+
+        response = requests.get(url, timeout=15)
+        response.raise_for_status()
+
+        data = response.json()
+
+        requested = {
+            f"{symbol.upper()}USDT"
+            for symbol in symbols
+        }
+
+        prices = {}
+
+        for item in data:
+            pair = item.get("symbol")
+
+            if pair not in requested:
+                continue
+
+            price = float(item["price"])
+
+            if price <= 0:
+                continue
+
+            symbol = pair[:-4]
+            prices[symbol] = price
+
+        return prices
+
+    except (requests.RequestException, ValueError, TypeError) as error:
+        print(f"Binance Futures price error: {error}")
+        return {}
